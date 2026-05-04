@@ -44,6 +44,7 @@ claude-code-playbook/
 |------|---------|
 | [碎片化多 Worker](anti-patterns/fragmented-workers.md) | 拆太碎导致每个 Worker 都不够聪明 |
 | [便宜模型做判断](anti-patterns/cheap-model-judgment.md) | 省钱模型在筛选/判断任务上翻车 |
+| [带本地 daemon 的 Skill 不配套关闭](anti-patterns/skill-with-local-daemon.md) | 装了带后台进程的 skill 不写 stop 脚本=本地后门 |
 
 ### Experiments — 对比实验
 
