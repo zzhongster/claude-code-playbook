@@ -37,6 +37,7 @@ claude-code-playbook/
 | [Prompt > 模型 > 架构](patterns/prompt-over-model.md) | 同一模型优化 prompt 的效果 > 换更贵的模型 |
 | [单对话 vs 多 Worker](patterns/single-conv-vs-multi-worker.md) | 需要全局意识的任务用单对话，独立任务才拆 |
 | [四阶段搜索工作流](patterns/four-stage-search.md) | 广搜→追线索→覆盖检查→输出 |
+| [SSH config 当全局机器别名层](patterns/ssh-config-as-global-host-alias.md) | 把 user/IP/key 沉淀到 `~/.ssh/config`，项目和 AI 会话只引用别名 |
 
 ### Anti-patterns — 反模式
 
