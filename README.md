@@ -38,6 +38,7 @@ claude-code-playbook/
 | [单对话 vs 多 Worker](patterns/single-conv-vs-multi-worker.md) | 需要全局意识的任务用单对话，独立任务才拆 |
 | [四阶段搜索工作流](patterns/four-stage-search.md) | 广搜→追线索→覆盖检查→输出 |
 | [SSH config 当全局机器别名层](patterns/ssh-config-as-global-host-alias.md) | 把 user/IP/key 沉淀到 `~/.ssh/config`，项目和 AI 会话只引用别名 |
+| [飞书 vs 企微 机器人推文件选型](patterns/feishu-vs-wecom-bot-file-push.md) | 只推用企微群机器人最省事；私聊/双向/动态IP 用飞书更灵活 |
 
 ### Anti-patterns — 反模式
 
@@ -46,6 +47,7 @@ claude-code-playbook/
 | [碎片化多 Worker](anti-patterns/fragmented-workers.md) | 拆太碎导致每个 Worker 都不够聪明 |
 | [便宜模型做判断](anti-patterns/cheap-model-judgment.md) | 省钱模型在筛选/判断任务上翻车 |
 | [带本地 daemon 的 Skill 不配套关闭](anti-patterns/skill-with-local-daemon.md) | 装了带后台进程的 skill 不写 stop 脚本=本地后门 |
+| [飞书机器人推文件权限踩坑](anti-patterns/feishu-bot-file-upload-scope-gotchas.md) | im:resource:upload 要加在"应用身份"且必须发版本审核才生效 |
 
 ### Experiments — 对比实验
 
