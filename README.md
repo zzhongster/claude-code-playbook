@@ -39,6 +39,7 @@ claude-code-playbook/
 | [四阶段搜索工作流](patterns/four-stage-search.md) | 广搜→追线索→覆盖检查→输出 |
 | [SSH config 当全局机器别名层](patterns/ssh-config-as-global-host-alias.md) | 把 user/IP/key 沉淀到 `~/.ssh/config`，项目和 AI 会话只引用别名 |
 | [飞书 vs 企微 机器人推文件选型](patterns/feishu-vs-wecom-bot-file-push.md) | 只推用企微群机器人最省事；私聊/双向/动态IP 用飞书更灵活 |
+| [浏览器内无副作用验证](patterns/in-browser-side-effect-free-verification.md) | monkeypatch `fetch`/`Blob` 验离线分支和下载内容，不真断网、不落盘 |
 
 ### Anti-patterns — 反模式
 
