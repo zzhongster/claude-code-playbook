@@ -40,6 +40,7 @@ claude-code-playbook/
 | [SSH config 当全局机器别名层](patterns/ssh-config-as-global-host-alias.md) | 把 user/IP/key 沉淀到 `~/.ssh/config`，项目和 AI 会话只引用别名 |
 | [飞书 vs 企微 机器人推文件选型](patterns/feishu-vs-wecom-bot-file-push.md) | 只推用企微群机器人最省事；私聊/双向/动态IP 用飞书更灵活 |
 | [浏览器内无副作用验证](patterns/in-browser-side-effect-free-verification.md) | monkeypatch `fetch`/`Blob` 验离线分支和下载内容，不真断网、不落盘 |
+| [openpyxl 填模板保图保格式](patterns/openpyxl-fill-xlsx-template-preserve-images.md) | load→只改单元格→save，无损保留二维码/合并格/字体，别重建 xlsx |
 
 ### Anti-patterns — 反模式
 
@@ -49,6 +50,7 @@ claude-code-playbook/
 | [便宜模型做判断](anti-patterns/cheap-model-judgment.md) | 省钱模型在筛选/判断任务上翻车 |
 | [带本地 daemon 的 Skill 不配套关闭](anti-patterns/skill-with-local-daemon.md) | 装了带后台进程的 skill 不写 stop 脚本=本地后门 |
 | [飞书机器人推文件权限踩坑](anti-patterns/feishu-bot-file-upload-scope-gotchas.md) | im:resource:upload 要加在"应用身份"且必须发版本审核才生效 |
+| [表头模糊匹配子串方向陷阱](anti-patterns/fuzzy-header-match-substring-direction.md) | 别名⊆表头会误吞长表头；正解两遍匹配+精确占列排除 |
 
 ### Experiments — 对比实验
 
