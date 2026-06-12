@@ -41,6 +41,7 @@ claude-code-playbook/
 | [飞书 vs 企微 机器人推文件选型](patterns/feishu-vs-wecom-bot-file-push.md) | 只推用企微群机器人最省事；私聊/双向/动态IP 用飞书更灵活 |
 | [浏览器内无副作用验证](patterns/in-browser-side-effect-free-verification.md) | monkeypatch `fetch`/`Blob` 验离线分支和下载内容，不真断网、不落盘 |
 | [openpyxl 填模板保图保格式](patterns/openpyxl-fill-xlsx-template-preserve-images.md) | load→只改单元格→save，无损保留二维码/合并格/字体，别重建 xlsx |
+| [微信公众号文章抓取](patterns/wechat-mp-article-scrape-via-micromessenger-ua.md) | curl 带微信 iPhone UA 绕过"环境异常"反爬，bs4 取 js_content |
 
 ### Anti-patterns — 反模式
 
@@ -51,6 +52,8 @@ claude-code-playbook/
 | [带本地 daemon 的 Skill 不配套关闭](anti-patterns/skill-with-local-daemon.md) | 装了带后台进程的 skill 不写 stop 脚本=本地后门 |
 | [飞书机器人推文件权限踩坑](anti-patterns/feishu-bot-file-upload-scope-gotchas.md) | im:resource:upload 要加在"应用身份"且必须发版本审核才生效 |
 | [表头模糊匹配子串方向陷阱](anti-patterns/fuzzy-header-match-substring-direction.md) | 别名⊆表头会误吞长表头；正解两遍匹配+精确占列排除 |
+| [微信图文数据藏在图片里](anti-patterns/wechat-mp-data-in-images-not-text.md) | 计划表/分数线常是图片，文字可能与图片矛盾，以图片为准 |
+| [同构文档合并整体读=模板化幻觉](anti-patterns/merged-homogeneous-docs-template-hallucination.md) | N 篇相似文档拼一起读，后半会被脑补成统一模板，应逐文件 grep |
 
 ### Experiments — 对比实验
 
