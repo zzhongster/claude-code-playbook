@@ -24,6 +24,18 @@ curl -s -L -A "$UA" "https://mp.weixin.qq.com/s/xxxx" -o article.html
 - **提取**：`bs4` 即可（`html2text` 非必须）。`content.get_text("\n", strip=True)` 拿文字，`find_all("img")` 拿图片 URL。
 - **完整流程**：`curl 下 HTML` → `bs4 取 js_content 文本 + 图片 URL` → 关键表格/图片**另行下载做视觉识别**（见 [[wechat-mp-data-in-images-not-text]]）。
 - 下载图片时只下 `jpg/png`（`wx_fmt=png/jpeg`），跳过 `wx_fmt=gif`（多为装饰/分隔线），并丢弃 <3KB 的微型图标。
+- **`data-src` 里的 URL 是 HTML 转义过的**，含 `&amp;`，下载前必须还原成 `&`（`sed 's/&amp;/\&/g'`），否则 `wx_fmt` / `from=appmsg` 等 query 参数错乱、可能取不到原图。
+- **下载图片带 `-H "Referer: https://mp.weixin.qq.com/"`** 更稳妥：`mmbiz.qpic.cn` 有防盗链，带上来源更不易被拒。
+- **正文图按 `data-src` 出现顺序 == 文档自然顺序**：多文档合辑（如"各科试卷"）里，矮图（高度远小于正文页）往往是章节分隔标题图，可据此把图片切成各章节段落。
+- 标题不在 `<title>`（常为空），在 JS 变量 `var msg_title = '...'` 或 `<meta property="og:title">`。
+
+```bash
+# 提取正文图 → 解码 &amp; → 带 Referer 下载
+grep -oE 'data-src="https://mmbiz.qpic.cn[^"]*"' article.html \
+  | sed -E 's/data-src="//; s/"$//; s/&amp;/\&/g' > urls.txt
+i=0; while read u; do i=$((i+1)); curl -s -A "$UA" \
+  -H "Referer: https://mp.weixin.qq.com/" "$u" -o "img-$i.png"; done < urls.txt
+```
 
 ## 适用范围
 
