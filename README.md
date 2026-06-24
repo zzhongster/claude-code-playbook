@@ -56,6 +56,8 @@ claude-code-playbook/
 | [微信图文数据藏在图片里](anti-patterns/wechat-mp-data-in-images-not-text.md) | 计划表/分数线常是图片，文字可能与图片矛盾，以图片为准 |
 | [同构文档合并整体读=模板化幻觉](anti-patterns/merged-homogeneous-docs-template-hallucination.md) | N 篇相似文档拼一起读，后半会被脑补成统一模板，应逐文件 grep |
 | [批量整理票据默认全是正常票](anti-patterns/invoice-batch-assumes-all-normal.md) | 退票费/红冲/折扣/跨年票混在批次里，统一正则会崩或把退票费当票价汇进总额 |
+| [DNS fallback 走代理致健康检查死锁](anti-patterns/mihomo-dns-fallback-deadlock-healthcheck.md) | Clash/mihomo fake-ip 下国外 DoH fallback 走代理→url-test 死锁→节点全标 Error→"用不起" |
+| [吞 stderr 把缺工具伪装成空数据](anti-patterns/silencing-stderr-hides-missing-tool-as-empty-data.md) | 诊断命令加 2>/dev/null 把 command-not-found 吞掉，空输出被当真实零值，根因判断走偏 |
 
 ### Experiments — 对比实验
 
