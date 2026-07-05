@@ -43,6 +43,7 @@ claude-code-playbook/
 | [openpyxl 填模板保图保格式](patterns/openpyxl-fill-xlsx-template-preserve-images.md) | load→只改单元格→save，无损保留二维码/合并格/字体，别重建 xlsx |
 | [微信公众号文章抓取](patterns/wechat-mp-article-scrape-via-micromessenger-ua.md) | curl 带微信 iPhone UA 绕过"环境异常"反爬，bs4 取 js_content |
 | [CLAUDE.md 文件夹收件箱](patterns/claude-md-folder-inbox.md) | 给杂物文件夹配 CLAUDE.md 固化分类/命名/解析规则，丢文件即自动归档 |
+| [整分支终审抓涌现缺陷](patterns/whole-branch-review-catches-emergent-defects.md) | per-task 评审看不到跨任务/规模涌现缺陷，合并前必做「整分支+最强模型」终审 |
 
 ### Anti-patterns — 反模式
 
