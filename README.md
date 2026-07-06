@@ -59,6 +59,7 @@ claude-code-playbook/
 | [批量整理票据默认全是正常票](anti-patterns/invoice-batch-assumes-all-normal.md) | 退票费/红冲/折扣/跨年票混在批次里，统一正则会崩或把退票费当票价汇进总额 |
 | [DNS fallback 走代理致健康检查死锁](anti-patterns/mihomo-dns-fallback-deadlock-healthcheck.md) | Clash/mihomo fake-ip 下国外 DoH fallback 走代理→url-test 死锁→节点全标 Error→"用不起" |
 | [吞 stderr 把缺工具伪装成空数据](anti-patterns/silencing-stderr-hides-missing-tool-as-empty-data.md) | 诊断命令加 2>/dev/null 把 command-not-found 吞掉，空输出被当真实零值，根因判断走偏 |
+| [GUI 客户端接远程 http MCP 两坑](anti-patterns/mcp-remote-http-client-gotchas.md) | Claude Desktop/WorkBuddy 用 mcp-remote：npx 必须绝对路径(app PATH 精简致 ENOENT)+ 加 --allow-http(拒非 HTTPS)；把命令拎到终端跑定位 |
 
 ### Experiments — 对比实验
 
