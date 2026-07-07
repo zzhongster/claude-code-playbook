@@ -44,6 +44,8 @@ claude-code-playbook/
 | [微信公众号文章抓取](patterns/wechat-mp-article-scrape-via-micromessenger-ua.md) | curl 带微信 iPhone UA 绕过"环境异常"反爬，bs4 取 js_content |
 | [CLAUDE.md 文件夹收件箱](patterns/claude-md-folder-inbox.md) | 给杂物文件夹配 CLAUDE.md 固化分类/命名/解析规则，丢文件即自动归档 |
 | [整分支终审抓涌现缺陷](patterns/whole-branch-review-catches-emergent-defects.md) | per-task 评审看不到跨任务/规模涌现缺陷，合并前必做「整分支+最强模型」终审 |
+| [反爬 PDF 本地 OCR 修复](patterns/anti-scrape-pdf-local-ocr-repair.md) | 显示正常复制乱码=字体混淆；PDFKit 3x 渲染+Vision OCR 零成本认回，"的"字频<1.5% 判乱码 |
+| [证据-结论分离抽取架构](patterns/evidence-conclusion-separation-for-llm-extraction.md) | LLM 只抽证据（引句+出处），矛盾走裁决层，合成纯脚本重放——可溯源、可增量、便宜模型可用 |
 
 ### Anti-patterns — 反模式
 
@@ -60,6 +62,7 @@ claude-code-playbook/
 | [DNS fallback 走代理致健康检查死锁](anti-patterns/mihomo-dns-fallback-deadlock-healthcheck.md) | Clash/mihomo fake-ip 下国外 DoH fallback 走代理→url-test 死锁→节点全标 Error→"用不起" |
 | [吞 stderr 把缺工具伪装成空数据](anti-patterns/silencing-stderr-hides-missing-tool-as-empty-data.md) | 诊断命令加 2>/dev/null 把 command-not-found 吞掉，空输出被当真实零值，根因判断走偏 |
 | [GUI 客户端接远程 http MCP 两坑](anti-patterns/mcp-remote-http-client-gotchas.md) | Claude Desktop/WorkBuddy 用 mcp-remote：npx 必须绝对路径(app PATH 精简致 ENOENT)+ 加 --allow-http(拒非 HTTPS)；把命令拎到终端跑定位 |
+| [自动化浏览器假象当应用 bug](anti-patterns/browser-automation-env-false-negatives.md) | 后台 rAF 停转/CDP 无原生双击/缓存旧页/headless WebGL 空白——先 console 探针证明事件到达，再谈改代码 |
 
 ### Experiments — 对比实验
 
