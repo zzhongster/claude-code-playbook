@@ -1,6 +1,6 @@
-# 给 GUI 客户端接远程 http MCP 的两个静默坑（npx 路径 + --allow-http）
+# 给 GUI 客户端接远程 http MCP 的三个静默坑（npx 路径 + --allow-http + 僵尸桥）
 
-> 把一个远程 streamable-http MCP server 接进 Claude Desktop / 腾讯 WorkBuddy 这类 **GUI 客户端**时，配置"看起来完全正确"但客户端里工具就是不出现——两个非报错、非直觉的坑，都不在文档显眼处。
+> 把一个远程 streamable-http MCP server 接进 Claude Desktop / 腾讯 WorkBuddy 这类 **GUI 客户端**时，配置"看起来完全正确"但客户端里工具就是不出现——三个非报错、非直觉的坑，都不在文档显眼处。
 
 ## 场景
 
@@ -50,6 +50,24 @@ Error: Non-HTTPS URLs are only allowed for localhost or when --allow-http flag i
 }
 ```
 另需 Node ≥18（mcp-remote 要求）。config 路径：Claude Desktop=`~/Library/Application Support/Claude/claude_desktop_config.json`、WorkBuddy=`~/.workbuddy/mcp.json`（两者同 schema）；改完**重启客户端**。
+
+## 坑 3：服务器重启后桥变"僵尸"——状态显示 running 但 "no tools available"
+
+配置全对、曾经能用，某天客户端里 connector 显示 **"This connector has no tools available"**，而 Developer 面板里 server 状态却是 **running**。
+
+**根因链**：mcp-remote 桥与远端保持 SSE 长连接 → 服务器重启/重建容器（`docker rm -f` 等）掐断连接 → mcp-remote 自动重连**只试 2 次**（`Maximum reconnection attempts (2) exceeded`，不可配）→ 放弃后**进程不退出**——本地 stdio 端还活着，GUI 就一直显示 running，但远端会话已死，工具列表拿不到/为空。
+
+日志实锤（`~/Library/Logs/Claude/mcp-server-<name>.log`）：
+
+```
+Error: SSE stream disconnected: TypeError: terminated
+  [cause]: SocketError: other side closed
+Error: Maximum reconnection attempts (2) exceeded.
+```
+
+**修**：重启 GUI 客户端（Cmd+Q 重开），桥进程重建即恢复。**每次重新部署远端 MCP server 后，开着的 GUI 客户端都要重启一次**——把这步写进部署 runbook。"running" 只表示本地桥进程活着，不代表远端会话健康。
+
+**定位口诀**：先在终端原样跑桥命令喂一条 `tools/list`（见下节）——终端里通、GUI 里空 → 必是客户端侧陈旧会话，直接重启客户端，别去改配置。
 
 ## 怎么快速定位（别靠重启客户端猜）
 
