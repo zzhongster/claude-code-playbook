@@ -1,4 +1,4 @@
-# 给 GUI 客户端接远程 http MCP 的三个静默坑（npx 路径 + --allow-http + 僵尸桥）
+# 给 GUI 客户端接远程 http MCP 的四个静默坑（npx 路径 + --allow-http + 僵尸桥 + 僵尸堆积）
 
 > 把一个远程 streamable-http MCP server 接进 Claude Desktop / 腾讯 WorkBuddy 这类 **GUI 客户端**时，配置"看起来完全正确"但客户端里工具就是不出现——三个非报错、非直觉的坑，都不在文档显眼处。
 
@@ -68,6 +68,19 @@ Error: Maximum reconnection attempts (2) exceeded.
 **修**：重启 GUI 客户端（Cmd+Q 重开），桥进程重建即恢复。**每次重新部署远端 MCP server 后，开着的 GUI 客户端都要重启一次**——把这步写进部署 runbook。"running" 只表示本地桥进程活着，不代表远端会话健康。
 
 **定位口诀**：先在终端原样跑桥命令喂一条 `tools/list`（见下节）——终端里通、GUI 里空 → 必是客户端侧陈旧会话，直接重启客户端，别去改配置。
+
+## 坑 4：僵尸桥会堆积——GUI 的"重连"按钮只生新不杀旧，堆多了连新桥都起不来
+
+(2026-07-09 实测) 坑 3 的恶化形态：远端 server 重建后，用户在 GUI 里反复点"重连"，客户端**每次都 spawn 一组新的 npx+node 进程，旧的不回收**——一下午积了 12 个僵尸 mcp-remote（`ps aux | grep mcp-remote` 一屏都是）。此时新桥启动可能撞上残留进程/本地状态直接退出，GUI 报 `MCP error -32000: Connection closed`——症状升级了（坑 3 是"running 但没工具"，这里是干脆连不上），用户会误判成网络/IP/域名问题。
+
+**修**：先杀光再重启客户端——
+```bash
+pkill -f "mcp-remote http://<你的host>"   # 清掉所有僵尸桥
+# 然后 Cmd+Q 彻底退出 GUI 客户端，重新打开
+```
+**验**：修完在终端原样跑一遍桥命令（见下节），看到 `Proxy established successfully` 再让用户重启 GUI——先证明链路通，再动客户端，避免又一轮盲试。
+
+**注意**：多个 GUI 客户端（Claude Desktop + WorkBuddy）共用同一远端时，pkill 会把所有客户端的桥都清掉——每个开着的客户端都要重启一次。
 
 ## 怎么快速定位（别靠重启客户端猜）
 
