@@ -26,6 +26,18 @@
 ```
 （这坑对所有"GUI app 启动的 stdio MCP + 依赖 PATH 里的解释器/工具"通用：node/python/uvx 同理，一律绝对路径。）
 
+## 坑 1.5：绝对路径 npx 也不够——npx 是脚本，运行时还要靠 PATH 找 node
+
+(2026-07-09 实测) 坑 1 修成 `command: "/opt/homebrew/bin/npx"` 后仍会翻车：npx 本身是 `#!/usr/bin/env node` 的脚本，**启动时要再靠 PATH 解析 node**。GUI 应用从 Dock/开机自启动启动时 PATH 精简（launchd 默认 `/usr/bin:/bin:...`，不含 /opt/homebrew/bin），npx 找不到 node 当场退出——客户端报 `MCP error -32000: Connection closed`。极具迷惑性：**终端里原样跑命令是通的**（终端 PATH 齐全），会误判成服务器/网络/域名问题。
+
+**修（终态形态，零 PATH 依赖 + 零启动期联网）**：安装时把 mcp-remote 固定下载到本机（`node npm-cli.js install --prefix ~/.trade-data-mcp mcp-remote`），配置直接用 node 二进制绝对路径 + 入口 js 绝对路径：
+```json
+{"command": "/opt/homebrew/bin/node",
+ "args": ["/Users/me/.trade-data-mcp/node_modules/mcp-remote/dist/proxy.js",
+          "http://1.2.3.4:8100/mcp", "--header", "Authorization: Bearer <token>", "--allow-http"]}
+```
+node 是二进制不是脚本，不再有第二跳 PATH 解析；`npx -y` 的"每次启动检查/下载"也一并消除（快、且离线可启动）。**验证要用 `env -i HOME=$HOME` 模拟 GUI 的精简环境跑桥**——终端直跑验证不出这个坑。
+
 ## 坑 2：缺 `--allow-http` → mcp-remote 拒连非 HTTPS 端点
 
 `mcp-remote` **默认只允许 HTTPS 或 localhost**，对 `http://` 的非 localhost 地址直接拒绝：
