@@ -64,6 +64,7 @@ claude-code-playbook/
 | [吞 stderr 把缺工具伪装成空数据](anti-patterns/silencing-stderr-hides-missing-tool-as-empty-data.md) | 诊断命令加 2>/dev/null 把 command-not-found 吞掉，空输出被当真实零值，根因判断走偏 |
 | [GUI 客户端接远程 http MCP 两坑](anti-patterns/mcp-remote-http-client-gotchas.md) | Claude Desktop/WorkBuddy 用 mcp-remote：npx 必须绝对路径(app PATH 精简致 ENOENT)+ 加 --allow-http(拒非 HTTPS)；把命令拎到终端跑定位 |
 | [自动化浏览器假象当应用 bug](anti-patterns/browser-automation-env-false-negatives.md) | 后台 rAF 停转/CDP 无原生双击/缓存旧页/headless WebGL 空白——先 console 探针证明事件到达，再谈改代码 |
+| [实时回调同步干重活，重试状态跨 Attempt 复用](anti-patterns/realtime-callback-blocking-and-global-attempt-state.md) | 回调只复制 primitive 快照并有界投递；readiness、写入确认和取消必须按 attempt 隔离 |
 
 ### Experiments — 对比实验
 
