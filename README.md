@@ -65,6 +65,7 @@ claude-code-playbook/
 | [GUI 客户端接远程 http MCP 两坑](anti-patterns/mcp-remote-http-client-gotchas.md) | Claude Desktop/WorkBuddy 用 mcp-remote：npx 必须绝对路径(app PATH 精简致 ENOENT)+ 加 --allow-http(拒非 HTTPS)；把命令拎到终端跑定位 |
 | [自动化浏览器假象当应用 bug](anti-patterns/browser-automation-env-false-negatives.md) | 后台 rAF 停转/CDP 无原生双击/缓存旧页/headless WebGL 空白——先 console 探针证明事件到达，再谈改代码 |
 | [实时回调同步干重活，重试状态跨 Attempt 复用](anti-patterns/realtime-callback-blocking-and-global-attempt-state.md) | 回调只复制 primitive 快照并有界投递；readiness、写入确认和取消必须按 attempt 隔离 |
+| [未抽样验证就照单全收 lint 报告](anti-patterns/trust-linter-output-without-sampling.md) | wiki lint 报 147 条"悬空链接"实为 0 条真悬空（工具不认 \|别名 语法）；批量修复前先抽 3-5 条验证，自引用也报错=最强信号 |
 
 ### Experiments — 对比实验
 
