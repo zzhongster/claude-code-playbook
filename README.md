@@ -66,6 +66,9 @@ claude-code-playbook/
 | [自动化浏览器假象当应用 bug](anti-patterns/browser-automation-env-false-negatives.md) | 后台 rAF 停转/CDP 无原生双击/缓存旧页/headless WebGL 空白——先 console 探针证明事件到达，再谈改代码 |
 | [实时回调同步干重活，重试状态跨 Attempt 复用](anti-patterns/realtime-callback-blocking-and-global-attempt-state.md) | 回调只复制 primitive 快照并有界投递；readiness、写入确认和取消必须按 attempt 隔离 |
 | [未抽样验证就照单全收 lint 报告](anti-patterns/trust-linter-output-without-sampling.md) | wiki lint 报 147 条"悬空链接"实为 0 条真悬空（工具不认 \|别名 语法）；批量修复前先抽 3-5 条验证，自引用也报错=最强信号 |
+| [SEO 基建只验本地产物不验线上](anti-patterns/seo-verified-in-build-never-in-production.md) | 预渲染在 build/ 里验证通过却从未部署，静默失效 4 个月无人察觉（线上对爬虫仅 649 字节）；内容页排名 1.3–2.0、5990 展示只换 16 点击。验收只认 curl 线上 URL |
+| [SPA 模板里硬编码页面级标签](anti-patterns/spa-template-hardcoded-page-level-tags.md) | index.html 是全路由共用模板，写死 canonical=每个子页宣称"首页才是权威版本"、放弃独立收录；不影响任何可见功能故潜伏极久。判据：每页恰好 1 条且指向自己 |
+| [忽略预渲染序列化会重排属性](anti-patterns/prerender-serialization-reorders-attributes.md) | puppeteer 输出的是序列化 DOM，meta 属性按字母序重排；站长平台校验是固定顺序正则→验证失败且不给原因。逐字符比对，别只看"标签在不在" |
 
 ### Experiments — 对比实验
 
