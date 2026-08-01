@@ -71,6 +71,7 @@ claude-code-playbook/
 | [SPA 模板里硬编码页面级标签](anti-patterns/spa-template-hardcoded-page-level-tags.md) | index.html 是全路由共用模板，写死 canonical=每个子页宣称"首页才是权威版本"、放弃独立收录；不影响任何可见功能故潜伏极久。判据：每页恰好 1 条且指向自己 |
 | [忽略预渲染序列化会重排属性](anti-patterns/prerender-serialization-reorders-attributes.md) | puppeteer 输出的是序列化 DOM，meta 属性按字母序重排；站长平台校验是固定顺序正则→验证失败且不给原因。逐字符比对，别只看"标签在不在" |
 | [DNS 写入成功≠解析生效](anti-patterns/cloudflare-silent-dns-record-rejection.md) | Cloudflare 静默丢弃重复标签名（send.send.x.com）：API 返 success、UI 显示、GET 读得回，区文件不写→NXDOMAIN。探针二分 30 秒定位根因 |
+| [视觉产物只读代码验收不真渲染](anti-patterns/visual-artifact-verified-by-reading-not-rendering.md) | CC 生成的设计稿注释里 `--font-*/--space-*` 的 `*/` 提前闭合注释，吞掉整个 `:root`、119 个 token 全失效；CSS 加载成功、排版还在，编码/括号/变量比对全绿——连去注释的正则都犯同一个错。判据必须写"附渲染截图" |
 
 ### Experiments — 对比实验
 
