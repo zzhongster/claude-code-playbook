@@ -72,6 +72,9 @@ claude-code-playbook/
 | [忽略预渲染序列化会重排属性](anti-patterns/prerender-serialization-reorders-attributes.md) | puppeteer 输出的是序列化 DOM，meta 属性按字母序重排；站长平台校验是固定顺序正则→验证失败且不给原因。逐字符比对，别只看"标签在不在" |
 | [DNS 写入成功≠解析生效](anti-patterns/cloudflare-silent-dns-record-rejection.md) | Cloudflare 静默丢弃重复标签名（send.send.x.com）：API 返 success、UI 显示、GET 读得回，区文件不写→NXDOMAIN。探针二分 30 秒定位根因 |
 | [视觉产物只读代码验收不真渲染](anti-patterns/visual-artifact-verified-by-reading-not-rendering.md) | CC 生成的设计稿注释里 `--font-*/--space-*` 的 `*/` 提前闭合注释，吞掉整个 `:root`、119 个 token 全失效；CSS 加载成功、排版还在，编码/括号/变量比对全绿——连去注释的正则都犯同一个错。判据必须写"附渲染截图" |
+| [tmp_path 测不到重跑污染](anti-patterns/tmp-path-hides-rerun-pollution.md) | 每个用例发一个空目录=模拟一个永远不会有第二次的世界。225 测试全绿，真实重跑第二次切出新旧混杂 7 个文件、序号还撞车。产出路径由输入决定的功能，要专门造"地面是脏的"用例 |
+| [未定义的 CSS 变量让整条声明作废](anti-patterns/undefined-css-var-kills-declaration.md) | 删了 `--accent-fg`，另一个页面还在引用→进度条填充变透明，进度在跑但看不见。不报错不回退，整条声明被丢弃；活过两轮审查，因为审查视野边界是 diff，被删对象的消费者不在 diff 里 |
+| [指标绿的原因不是你以为的](anti-patterns/green-metric-measures-wrong-mechanism.md) | 用 `scrollWidth > clientWidth` 查布局破版返回 false——因为文字被挤成竖排、纵向坍缩把横向溢出吸收了。选指标要问"故障发生时它会变成什么"，答案是"正常范围"就换指标 |
 
 ### Experiments — 对比实验
 
