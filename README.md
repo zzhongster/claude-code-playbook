@@ -75,6 +75,8 @@ claude-code-playbook/
 | [tmp_path 测不到重跑污染](anti-patterns/tmp-path-hides-rerun-pollution.md) | 每个用例发一个空目录=模拟一个永远不会有第二次的世界。225 测试全绿，真实重跑第二次切出新旧混杂 7 个文件、序号还撞车。产出路径由输入决定的功能，要专门造"地面是脏的"用例 |
 | [未定义的 CSS 变量让整条声明作废](anti-patterns/undefined-css-var-kills-declaration.md) | 删了 `--accent-fg`，另一个页面还在引用→进度条填充变透明，进度在跑但看不见。不报错不回退，整条声明被丢弃；活过两轮审查，因为审查视野边界是 diff，被删对象的消费者不在 diff 里 |
 | [指标绿的原因不是你以为的](anti-patterns/green-metric-measures-wrong-mechanism.md) | 用 `scrollWidth > clientWidth` 查布局破版返回 false——因为文字被挤成竖排、纵向坍缩把横向溢出吸收了。选指标要问"故障发生时它会变成什么"，答案是"正常范围"就换指标 |
+| [正则给结构化数据脱敏遮错对象](anti-patterns/regex-redaction-on-structured-data.md) | 在 `{"key":"PASSWORD","value":"<真密码>"}` 上正则命中的是**标签**不是值——输出满屏 `<已遮蔽>` 而密码是明文，且同一份输出里既有遮对的也有遮漏的，肉眼分不出。脱敏没有反馈信号，所以"能不取的就不取"优于"取了再遮" |
+| [定时任务只配失败告警](anti-patterns/scheduled-job-only-alerts-on-failure.md) | 三类失败：跑了失败／**根本没跑**／跑了成功但产物是空的。失败告警只覆盖第一类，而后两类是静默的。看门狗必须独立于被监控任务，判断依据要看**产物**不是运行记录；且每类告警都得人为触发过一次 |
 
 ### Experiments — 对比实验
 
