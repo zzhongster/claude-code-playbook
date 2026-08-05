@@ -78,6 +78,7 @@ claude-code-playbook/
 | [正则给结构化数据脱敏遮错对象](anti-patterns/regex-redaction-on-structured-data.md) | 在 `{"key":"PASSWORD","value":"<真密码>"}` 上正则命中的是**标签**不是值——输出满屏 `<已遮蔽>` 而密码是明文，且同一份输出里既有遮对的也有遮漏的，肉眼分不出。脱敏没有反馈信号，所以"能不取的就不取"优于"取了再遮" |
 | [定时任务只配失败告警](anti-patterns/scheduled-job-only-alerts-on-failure.md) | 三类失败：跑了失败／**根本没跑**／跑了成功但产物是空的。失败告警只覆盖第一类，而后两类是静默的。看门狗必须独立于被监控任务，判断依据要看**产物**不是运行记录；且每类告警都得人为触发过一次 |
 | [报错建议的修法把守卫关掉了](anti-patterns/error-message-suggests-the-fix-that-silences-it.md) | `pg_dump` 因 RLS 拒绝导出（退出码 1，好的失败），报错说"会被 RLS 影响"→顺手加 `--enable-row-security`→**退出码 0、dump 里 0 行数据**，结构完整数据全无，下游"恢复演练"还因为数表不数行而放行。看到报错里的选项名先问：它让我读得全，还是让我不再被告知读不全 |
+| [照文档配事件钩子做埋点](anti-patterns/hook-instrumentation-double-fires-silently.md) | 三处会错全都不报错：文档说 matcher 是 `Task` 实为 `Agent`（永不触发，3 个对象零记录）；人手敲命令时两个事件**各触发一次**（人机比例直接翻倍，**数字看着完全正常**）；有的客户端把 `/命令` 就地展开、不产生工具调用（只在人这一侧漏，结论恰好符合直觉因而没人质疑）。漏记还有个「零」让人起疑，翻倍什么都不留——配置前先装 dump 探针看真实事件 JSON，入参结构从 `~/.claude/projects/*.jsonl` 历史调用里捞频次（50 带 / 8 不带，只看样例会以为是必填） |
 
 ### Experiments — 对比实验
 
