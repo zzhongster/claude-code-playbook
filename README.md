@@ -78,6 +78,8 @@ claude-code-playbook/
 | [正则给结构化数据脱敏遮错对象](anti-patterns/regex-redaction-on-structured-data.md) | 在 `{"key":"PASSWORD","value":"<真密码>"}` 上正则命中的是**标签**不是值——输出满屏 `<已遮蔽>` 而密码是明文，且同一份输出里既有遮对的也有遮漏的，肉眼分不出。脱敏没有反馈信号，所以"能不取的就不取"优于"取了再遮" |
 | [定时任务只配失败告警](anti-patterns/scheduled-job-only-alerts-on-failure.md) | 三类失败：跑了失败／**根本没跑**／跑了成功但产物是空的。失败告警只覆盖第一类，而后两类是静默的。看门狗必须独立于被监控任务，判断依据要看**产物**不是运行记录；且每类告警都得人为触发过一次 |
 | [报错建议的修法把守卫关掉了](anti-patterns/error-message-suggests-the-fix-that-silences-it.md) | `pg_dump` 因 RLS 拒绝导出（退出码 1，好的失败），报错说"会被 RLS 影响"→顺手加 `--enable-row-security`→**退出码 0、dump 里 0 行数据**，结构完整数据全无，下游"恢复演练"还因为数表不数行而放行。看到报错里的选项名先问：它让我读得全，还是让我不再被告知读不全 |
+| [「X 点前触发义务」的规则会在 X 点前制造真空](anti-patterns/deadline-triggered-obligation-vacuum.md) | 「19:00 前被要求修改 → 当天改完」惩罚的是**早提 PR**——理性选择变成憋到明早再提，分支多活一夜、审查队列堆到早上，**规则达成了它想防止的事**。挪时点无效（改 18:00 只把规避提前到 17:00），解法是拆开**响应**（30 秒的事，可硬性要求）与**完成**（取决于改动大小，改为自己承诺+承诺有约束力）。AI 优化「逻辑自洽」，人优化「明天同事会怎么做」——规则的判据是激励相容，不是自洽 |
+| [串行资源上的并发申领](anti-patterns/concurrent-claims-on-serial-resource.md) | 两个 PR 各自从迁移 `0003` 开始编号，双方本地全绿、两个 CI 也全绿——CI 只跑「本分支 vs main」，从不跑「两个待合分支互相」。冲突在**两份 diff 的交集**里，不属于任何一个 PR，**单 PR 视角结构性不可见**。drizzle 的 snapshot 是链式的，后合方无法手工解、必须整个重生成。同类：ADR 编号、changelog、`_journal.json`、错误码。只要 open PR > 1 且碰同一目录就横向比一次 |
 | [照文档配事件钩子做埋点](anti-patterns/hook-instrumentation-double-fires-silently.md) | 三处会错全都不报错：文档说 matcher 是 `Task` 实为 `Agent`（永不触发，3 个对象零记录）；人手敲命令时两个事件**各触发一次**（人机比例直接翻倍，**数字看着完全正常**）；有的客户端把 `/命令` 就地展开、不产生工具调用（只在人这一侧漏，结论恰好符合直觉因而没人质疑）。漏记还有个「零」让人起疑，翻倍什么都不留——配置前先装 dump 探针看真实事件 JSON，入参结构从 `~/.claude/projects/*.jsonl` 历史调用里捞频次（50 带 / 8 不带，只看样例会以为是必填） |
 
 ### Experiments — 对比实验
