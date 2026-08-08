@@ -81,6 +81,7 @@ claude-code-playbook/
 | [「X 点前触发义务」的规则会在 X 点前制造真空](anti-patterns/deadline-triggered-obligation-vacuum.md) | 「19:00 前被要求修改 → 当天改完」惩罚的是**早提 PR**——理性选择变成憋到明早再提，分支多活一夜、审查队列堆到早上，**规则达成了它想防止的事**。挪时点无效（改 18:00 只把规避提前到 17:00），解法是拆开**响应**（30 秒的事，可硬性要求）与**完成**（取决于改动大小，改为自己承诺+承诺有约束力）。AI 优化「逻辑自洽」，人优化「明天同事会怎么做」——规则的判据是激励相容，不是自洽 |
 | [串行资源上的并发申领](anti-patterns/concurrent-claims-on-serial-resource.md) | 两个 PR 各自从迁移 `0003` 开始编号，双方本地全绿、两个 CI 也全绿——CI 只跑「本分支 vs main」，从不跑「两个待合分支互相」。冲突在**两份 diff 的交集**里，不属于任何一个 PR，**单 PR 视角结构性不可见**。drizzle 的 snapshot 是链式的，后合方无法手工解、必须整个重生成。同类：ADR 编号、changelog、`_journal.json`、错误码。只要 open PR > 1 且碰同一目录就横向比一次 |
 | [照文档配事件钩子做埋点](anti-patterns/hook-instrumentation-double-fires-silently.md) | 三处会错全都不报错：文档说 matcher 是 `Task` 实为 `Agent`（永不触发，3 个对象零记录）；人手敲命令时两个事件**各触发一次**（人机比例直接翻倍，**数字看着完全正常**）；有的客户端把 `/命令` 就地展开、不产生工具调用（只在人这一侧漏，结论恰好符合直觉因而没人质疑）。漏记还有个「零」让人起疑，翻倍什么都不留——配置前先装 dump 探针看真实事件 JSON，入参结构从 `~/.claude/projects/*.jsonl` 历史调用里捞频次（50 带 / 8 不带，只看样例会以为是必填） |
+| [改另一个副本的 hook 脚本，当前会话永远加载不到](anti-patterns/hook-edits-in-parallel-clone-never-load.md) | hook 路径锁在会话启动时的 `CLAUDE_PROJECT_DIR`，`cd` 到另一个 clone/worktree 不改变它。失败现象与「我代码写错了」**四项全同**（退出码/stdout/stderr/落盘结果），而你刚改完代码、第一嫌疑人必然是自己——离线用例全绿本该排除它，但直觉会解读成「用例没覆盖真实情况」，**于是回去改一份正确的实现**。排查顺序反过来：先在脚本顶部插一行 marker 确认加载的是哪个文件，再怀疑代码。多副本并行下高频 |
 
 ### Experiments — 对比实验
 

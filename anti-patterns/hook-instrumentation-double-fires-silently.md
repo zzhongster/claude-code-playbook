@@ -74,6 +74,12 @@ printf '%s' "$cmd" | tr ';&|()' '\n\n\n\n\n' | while IFS= read -r seg; do ...
 
 7. **hook 脚本值得写离线用例。** 它跑在宿主进程里、每次调用都触发，活体调试代价高且不可重复。把事件 JSON 当输入、落盘结果当输出，纯函数式地测——本次 18 条用例，抓到了活体测试恰好绕开的那个 `read` bug。用例里必须有一条是「**喂垃圾输入也 exit 0**」。
 
+   > **0808 追记，这套用例的第二个战绩。** 三天后给同一套埋点扩统计对象，工具名首次出现带 `/` 的形式（四个入口的 basename 全叫 `run.mjs`，只能用相对路径区分）。而去重标记是**拿工具名直接拼文件名**的——`sh:diff-budget/run.mjs` 里的 `/` 被当成目录分隔符，标记文件建不出来，认领永远失败。
+   >
+   > 两点让它很难靠肉眼或活体发现：**①这行代码一直是对的**，旧工具名里没有斜杠，是新功能给旧代码引入了新的失效条件；**②失效是单向的**——`agent` 照记，只有 `human` 记不到。数据里会有这个工具的记录，看着在工作，只是那一列永远是 0。而人机比例正是整件事唯一的产出。
+   >
+   > 用例从 18 条扩到 26 条，写完实现一跑就炸出来了。**扩统计口径时，先问一句「新的名字形态会不会撑破旧的存储形态」**——文件名、目录名、JSON key、URL 片段，都是这类隐式约束的藏身处。
+
 ## 数据支撑
 
 | 项 | 数 |
@@ -93,6 +99,7 @@ printf '%s' "$cmd" | tr ';&|()' '\n\n\n\n\n' | while IFS= read -r seg; do ...
 
 ## 相关
 
+- [hook-edits-in-parallel-clone-never-load](hook-edits-in-parallel-clone-never-load.md) —— 同一套埋点的续集，讲**加载层**：多工作副本并行时，改了 B 副本的 hook 脚本，当前会话加载的仍是启动副本那份。本篇讲「配置写错了」，那篇讲「跑的根本不是你改的那份配置」
 - [green-metric-measures-wrong-mechanism](green-metric-measures-wrong-mechanism.md) —— 同一族：验收指标在最该报警时给出正常值。那篇是「指标测错了量」，这篇是「数据源本身重复/缺失」，共同点都是**绿灯终止了调查**
 - [tdd-fake-red](tdd-fake-red.md) —— 「用例红了」不等于「用例测到了东西」，与本篇第 5、7 条同源
 - [silencing-stderr-hides-missing-tool-as-empty-data](silencing-stderr-hides-missing-tool-as-empty-data.md) —— 本篇第 6 条把 stderr 全静音，代价正是这篇讲的：工具缺失会表现为空数据。所以埋点脚本里 `jq` 缺失时是**整条静默丢弃**而非记一条残缺记录，且这一点必须写进口径文档
