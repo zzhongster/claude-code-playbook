@@ -40,8 +40,9 @@ Worker 侧四件事：
 
 Cookie 用 `HttpOnly; Secure; SameSite=Lax`，`Path` 限定到 `/h/<siteId>/`；放行后的响应头设 `Cache-Control: private, max-age=600`——浏览器可缓存，任何共享缓存（CDN、公司代理）不得留存。
 
-## 三个坑
+## 四个坑
 
+- **`text/*` 缺 charset，中文整篇乱码**。静态资源层按扩展名推断出的 Content-Type 不带 charset（`.md` → `text/markdown`、`.txt` → `text/plain`、`.csv` → `text/csv`），浏览器只能猜编码，UTF-8 按 GBK 解析就是一屏「鍇ㄦ湅」。**HTML 因为自带 `<meta charset>` 不受影响，所以只测 HTML 页面永远发现不了它**——而"HTML 阅读层 + Markdown 原文"正是资料包最常见的结构，原文那一半全是裸文本。在放行处统一给缺 charset 的 `text/*` 补上即可。这个坑在换一条链路（对象存储直传）时已经踩过一次，换到边缘 Worker 又复发：**只要中间有一层按扩展名猜 Content-Type，它就会再来一次**。
 - **`run_worker_first = true` 不能少**。默认是 false，Cloudflare 会在 Worker 之前直接吐出静态资源，口令门形同虚设——而且首页看起来一切正常，因为你测的那一下正好走了 Worker。
 - **`html_handling = "none"` 不能少**。默认的 `auto-trailing-slash` 会把 `/a/b.html` 307 跳到 `/a/b`。站内链接若全是显式 `.html`，等于每开一页多绕一跳。关掉之后目录形式的路径（以 `/` 结尾）不再自动找 index.html，得由 Worker 自己补。
 - **共用 Worker 的两个整体覆盖语义**：`wrangler deploy` 会把 assets 目录整体同步，本地 `public/` 不在就等于把所有已发布的私密站点删了；`wrangler secret put` 也是整体覆盖，新增站点时必须把旧站点的条目一起写回那段 JSON。
@@ -61,7 +62,7 @@ curl -s -o /dev/null -c /tmp/ck -X POST -d 'p=<口令>&next=/h/<siteId>/index.ht
 curl -s -b /tmp/ck -o /dev/null -w "%{http_code}\n" "$BASE/index.html"            # 200
 ```
 
-抽查要覆盖**每一类内容**（HTML / 图片 / 纯文本原文 / 数据文件），不是每一类路径深度。共用 Worker 还要回归原有通道。刚部署完时边缘可能仍在按旧配置响应，见 [验证打在旧的边缘状态上](../anti-patterns/verify-immediately-after-deploy-hits-stale-edge-state.md)。
+抽查要覆盖**每一类内容**（HTML / 图片 / Markdown 原文 / csv / txt / json），不是每一类路径深度；除状态码外还要看 `%{content_type}` 里 `text/*` 有没有 charset。共用 Worker 还要回归原有通道。刚部署完时边缘可能仍在按旧配置响应，见 [验证打在旧的边缘状态上](../anti-patterns/verify-immediately-after-deploy-hits-stale-edge-state.md)。
 
 ## 实测数据
 
