@@ -2,7 +2,7 @@
 
 ## 一句话结论
 
-结果表按 id 覆盖、历史表按 run 追加的模式下，"回滚 run R" 不是"恢复到 run R-1"——每个 id 的上一版本可能来自不同的 run。回滚必须**逐 id** 找 `written_at < R` 的最新历史版本，没有更早版本的 id 才删除；历史表本身还要对重试幂等。
+结果表按 id 覆盖、历史表按 run 追加的模式下，"回滚 run R" 既不是"恢复到 run R-1"，也不是"逐 id 取最近的历史版本"（后者会复活已被回滚的版本）。唯一正确的依据是**写入前的 pre-image**：每次写入前存下受影响 id 的实际旧值，回滚只恢复它，被后续 run 覆盖过的 run 拒绝回滚。
 
 ## 场景
 
@@ -26,22 +26,29 @@ DELETE FROM res WHERE run_id = 本 run     # 上一 run 没覆盖到的 id 在�
 
 ## 正确做法
 
+**第一版修正（仍然错）**："逐 id 取历史表里 `written_at` 早于本 run 的最新版本"。它修好了增量混合来源的问题，但引入了另一个：r3 → 回滚到 r2 → r4 → 回滚 r4 时，历史表里时间最近的是 r3，于是把已经回滚掉的 r3 复活了。历史表记录的是"写过什么"，不是"写之前是什么"。
+
+**真正的做法：pre-image。** 每次写入前，把本 run 触及的每个 id 在结果表里的**实际旧值**（含"此前不存在"）存一份，回滚只恢复这份：
+
 ```sql
--- 逐 id：每个 id 取早于本 run 写入的最新版本
-INSERT INTO res (cols)   -- 会话内先 SET enable_unique_key_partial_update = true
-SELECT h.cols FROM hist h
-JOIN (SELECT p.id, max(p.written_at) w FROM hist p
-      JOIN hist cur ON cur.id = p.id AND cur.run_id = :run
-      WHERE p.written_at < cur.written_at GROUP BY p.id) m
-  ON m.id = h.id AND m.w = h.written_at;
-DELETE FROM res WHERE run_id = :run;   -- 剩下仍标记为本 run 的 = 没有更早版本的 id
+-- 写入前（history 已写、result 未动）
+INSERT INTO preimage (run_id, id, existed, <value cols>, prev_run_id)
+SELECT h.run_id, h.id, r.id IS NOT NULL, <r.value cols>, r.run_id
+FROM history h LEFT JOIN result r ON r.id = h.id
+WHERE h.run_id = :run AND h.id NOT IN (SELECT id FROM preimage WHERE run_id = :run);   -- 重试不覆盖真正的旧值
+
+-- 回滚
+-- 0) 拒绝：本 run 触及的 id 已被后续 run 覆盖（result.run_id <> :run）→ 先回滚后续 run
+-- 1) SET enable_unique_key_partial_update = true; INSERT INTO result (<cols>, run_id) SELECT <cols>, prev_run_id FROM preimage WHERE run_id = :run AND existed
+-- 2) DELETE FROM result WHERE run_id = :run           -- 剩下的 = existed=false 的 id
+-- 3) DELETE FROM preimage WHERE run_id = :run         -- 已消费，防二次回滚
 ```
 
-- 历史表 `UNIQUE KEY(run_id, id)`（merge-on-write）+ Stream Load **确定性 label**（`hist-{run_id}`）：重试要么被拒要么覆盖同一行，永远只有一个版本
-- 测试必须包含"混合来源"用例：r1 写 {A,B}，r2 写 {A,B}，r3 只写 {B,C}，回滚 r3 后 A 仍是 r2、B 回到 r2、C 被删
+- pre-image 表 `UNIQUE KEY(run_id, id)`；history 表也改 `UNIQUE KEY(run_id, id)` + Stream Load 确定性 label，只做审计与增量对比，不参与回滚
+- 测试必须覆盖：r1 {1,2} → r2 {1,2} → r3 {2,3} → 回滚 r3 → r4 {2} → 回滚 r4，断言 id 2 回到 **r2**；以及"r5 覆盖了 r2 的 id 后回滚 r2 被拒绝"
 
 ## 识别信号
 
-- 回滚代码里有 `ORDER BY ... LIMIT 1` 选出一个 run 再套所有 id
+- 回滚代码里有 `ORDER BY ... LIMIT 1` 选出一个 run 再套所有 id，或按 `max(written_at)` 从历史表找"上一版"
 - 历史表是 DUPLICATE/append 模型且写入用随机 label
 - 回滚测试只覆盖"全量 run 之间"的回滚

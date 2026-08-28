@@ -41,6 +41,10 @@ def is_valid(artifact, lib_version, pipeline_version) -> bool:
 
 3. 版本号同时写进最终结果表的每一行（`lib_version`、`pipeline_version` 列），增量任务据此判断"要不要全量重算"。
 
+**摘要字段必须覆盖全部"参与决策"的列**：第一版摘要只拼了 `id, english_name, bvdid, city, reg_status`，漏了 `company_name / province / former_name`（LLM 提示和消歧打分都在用）——改了省份 `lib_version` 纹丝不动。把字段清单提成常量，加一个"只改省份/地址也会改变 digest"的单测，比靠人记住强。
+
+**原始抽取也是缓存**：`qcc.parquet` / `orbis_*.parquet` 同样不能靠 `exists()` 复用；抽取要写临时文件再原子 rename，否则中断留下的半个文件下次会被当成有效缓存。
+
 ## 识别信号
 
 - 代码里出现 `if path.exists(): return`
