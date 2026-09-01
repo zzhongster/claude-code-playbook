@@ -94,6 +94,7 @@ claude-code-playbook/
 | 文档 | 实验内容 |
 |------|---------|
 | [Skill vs Pipeline 全量对比](experiments/2026-03-12-skill-vs-pipeline.md) | 4 种架构方案的完整数据 |
+| [遗留系统图谱证据门禁](experiments/2026-09-01-legacy-atlas-evidence-gates.md) | 4,314 个源码输入 + 实库 + Windows 状态机的结构/运行双门禁实验 |
 
 ## 内容来源
 
