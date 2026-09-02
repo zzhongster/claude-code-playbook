@@ -47,6 +47,7 @@ claude-code-playbook/
 | [反爬 PDF 本地 OCR 修复](patterns/anti-scrape-pdf-local-ocr-repair.md) | 显示正常复制乱码=字体混淆；PDFKit 3x 渲染+Vision OCR 零成本认回，"的"字频<1.5% 判乱码 |
 | [证据-结论分离抽取架构](patterns/evidence-conclusion-separation-for-llm-extraction.md) | LLM 只抽证据（引句+出处），矛盾走裁决层，合成纯脚本重放——可溯源、可增量、便宜模型可用 |
 | [配置层确认 ≠ 端到端验证](patterns/split-config-check-from-e2e-verification.md) | 回读配置值只证明"写对了"不证明"生效了"；验收拆两条，端到端那条若依赖别人就别挂自己卡上 |
+| [锁死依赖的升级评估探针法](patterns/locked-dependency-upgrade-probe.md) | 隔离 venv 零改动跑全量测试+新旧报文 diff+客户端矩阵,实测替代 changelog 阅读;评估 spike 与 TDD 实施分两段 |
 
 ### Anti-patterns — 反模式
 
