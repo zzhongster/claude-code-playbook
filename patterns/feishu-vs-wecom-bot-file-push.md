@@ -43,6 +43,10 @@
 - **飞书**：权限改了要发版本经管理员审核才生效；文件权限 `im:resource:upload` 要加在**应用身份**而非用户身份——见 [反模式](../anti-patterns/feishu-bot-file-upload-scope-gotchas.md)。
 - **企微自建应用**：「企业可信IP」对动态 IP 是真坑，且无"程序化改可信IP"的官方接口；动态 IP 想用，得给脚本配一个**固定出口 IP**（云主机/跳板机代理）。
 - **企微群机器人**：几乎没坎，唯一限制是只能发群——变通法是**建一个只放目标人的小群当"收件箱"**。
+- 🔴 **飞书群机器人（本表没列的一条，2026-09-03 实测补）**：它也有 webhook 这条路，同样免 token、免 IP 白名单，但**多了一道「安全设置」**——自定义关键词 / IP 白名单 / 签名校验三选（也可全不开）。**开了「自定义关键词」而消息内容没命中，直接拒收 `19024 Key Words Not Found`，且 HTTP 仍是 200。**
+  - 这道闸**挡在格式校验之前**，所以它的错误码和"你的 JSON 写错了"长得一样——排查时极易误判成格式问题，见 [两发法实验](../experiments/2026-09-03-two-shot-probe-third-party-integration.md)；
+  - **别指望靠内容里碰巧含关键词过关**（比如深链域名里恰好有那个词）：实测大小写/是否检查 url 字段都不确定，且域名一换就断；
+  - ⚠️ 给客户/同事用时这条尤其要写进文档——**对方在自己后台开了关键词校验，你这边看到的是"一条都没送达"，而错误在他那侧。**
 
 ## 选型建议（决策树）
 
@@ -66,3 +70,4 @@
 
 - 飞书推文件踩坑：[feishu-bot-file-upload-scope-gotchas](../anti-patterns/feishu-bot-file-upload-scope-gotchas.md)
 - 凭证别名沉淀思路同源：[ssh-config-as-global-host-alias](./ssh-config-as-global-host-alias.md)
+- 选了群机器人之后，安全校验那一格怎么咬人：[两发法实验](../experiments/2026-09-03-two-shot-probe-third-party-integration.md)

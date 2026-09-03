@@ -97,6 +97,7 @@ claude-code-playbook/
 |------|---------|
 | [Skill vs Pipeline 全量对比](experiments/2026-03-12-skill-vs-pipeline.md) | 4 种架构方案的完整数据 |
 | [遗留系统图谱证据门禁](experiments/2026-09-01-legacy-atlas-evidence-gates.md) | 4,314 个源码输入 + 实库 + Windows 状态机的结构/运行双门禁实验 |
+| [两发法：第三方集成验证](experiments/2026-09-03-two-shot-probe-third-party-integration.md) | 只打一发会把「被前置闸挡住」误读成「格式不对」——三发受控对照，每次只改一个变量 |
 
 ## 内容来源
 
