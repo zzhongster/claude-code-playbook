@@ -29,7 +29,8 @@ and removed in sing-box 1.14.0
 |---|---|---|---|
 | 1 | `dns.servers` 换新格式 | 1.14 `check` 全绿 → **部署上线** | 本地真跑才发现启动 FATAL：`start dns/https[local-dns]: detour to an empty direct outbound makes no sense`。`check` 查不出，只有 `run` 炸 |
 | 2 | 去掉 `detour:"direct"`，本地真跑 | 起来了但下载 rule-set 时 `EOF` | 一度以为 CF 中转坏了。真因：测试配置用的**假 UUID**，服务端 Xray 直接掐连接。换真 UUID 全通 |
-| 3 | 1.14 真跑冒出新 WARN：`download_detour` 1.14 弃用、1.16 删除，替代 `http_client` | 查文档 | `http_client` 是 1.14 才有的字段，**现在换上去会把 1.12/1.13 的客户端弄坏**（严格解析）。只能记成到期项，等全员 ≥1.14 再迁 |
+| 3 | 1.14 真跑冒出新 WARN：`download_detour` 1.14 弃用、1.16 删除，替代 `http_client` | 查文档 + 1.12 二进制 `check` | `http_client` 是 1.14 才有的字段，**换上去 1.12 直接 `unknown field` 拒载**（严格解析）；不换则 1.14 的 App **每次启动弹模态警告框**。两边没有交集 |
+| 4 | 按请求 UA 里的 `sing-box X.Y` 分发：≥1.14 给 `http_client:{detour}`，否则回退 `download_detour` | 1.14 + 1.12 二进制各模拟对应 UA 真跑 | 1.14 零 WARN、1.12 正常；UA 解析不出走回退（只弹警告、不会不可用）。顺手把 UA 记进日志，以后"最低版是哪个"不用猜 |
 
 另外 1.12 `check` 旧配置有**两条** WARN（legacy DNS servers + outbound DNS rule item），只修第一条的话 1.14 照样拒载——弃用警告要**全部**清零，不是修到报错消失。
 
@@ -61,11 +62,11 @@ curl -x socks5h://127.0.0.1:21080 https://www.baidu.com/                 # 直�
 **3. 把 WARN 当 error 处理。**
 弃用警告出现的那一刻就是迁移窗口的起点。脚本里把日志中的 `WARN/FATAL/ERROR` 抓出来打印；出现即建到期项（本例：`download_detour` → `http_client`，1.16 到期）。
 
-**4. 迁移目标受最低版约束，不受文档约束。**
-替代字段在最低版认不认？不认就不能换，先催升级、再迁；不要两边一起赌。
+**4. 迁移目标受最低版约束，不受文档约束；没有交集就按版本分发。**
+替代字段在最低版认不认？不认就不能直接换。新旧写法没有公共子集时（本例：老字段被新版弃用弹窗、新字段被老版拒载），生成方按请求 UA 里的客户端版本分发两套，**解析不出的一律走老写法**（老写法在新版只是警告，新写法在老版是不可用——两种失败不对称，回退方向要选"降级还能用"的那边）。官方客户端 UA 都带版本：`SFI (sing-box 1.14.0; language zh_CN)`。
 
 **5. 服务端记一下客户端 UA。**
-本例服务为了防扫描器刷日志把 `log_message` 静默了，副作用是**看不到员工版本分布**，"最低版是哪个"只能猜。至少把 UA 里的版本号聚合记下来。
+本例服务为了防扫描器刷日志把 `log_message` 静默了，副作用是**看不到员工版本分布**，"最低版是哪个"只能猜。至少把 UA 记下来（别记凭证性的路径段），`grep -o "sing-box [0-9.]*" | sort | uniq -c` 就是版本分布——这也是判断"回退分支何时可以删"的唯一依据。
 
 ## 验证方法
 
@@ -81,7 +82,8 @@ python3 scripts/singbox-smoke-test.py --bin ./sing-box-1.12.0 --url https://host
 
 - **修复前**：1.14 `check` 就 FATAL（和手机同一句报错）；1.12 `check` 两条 WARN
 - **第一版修复**：两版 `check` 全绿，1.14 `run` FATAL —— 这就是本条反模式的核心证据
-- **修复后**：两版 check 干净、run 起来 1.6s、4 条 curl 全通；1.14 只剩 `download_detour` 一条 WARN（已登记到期项）
+- **修复后**：两版 check 干净、run 起来 1.6s、4 条 curl 全通；1.14 只剩 `download_detour` 一条 WARN
+- **按 UA 分发后**：`--ua "SFI (sing-box 1.14.0; …)"` 对 1.14 二进制零 WARN；`--ua "SFA (sing-box 1.12.0; …)"` 对 1.12 二进制正常；无 UA 走回退（1 条 WARN，预期）
 
 ## 适用范围
 
