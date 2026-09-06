@@ -48,6 +48,7 @@ claude-code-playbook/
 | [证据-结论分离抽取架构](patterns/evidence-conclusion-separation-for-llm-extraction.md) | LLM 只抽证据（引句+出处），矛盾走裁决层，合成纯脚本重放——可溯源、可增量、便宜模型可用 |
 | [配置层确认 ≠ 端到端验证](patterns/split-config-check-from-e2e-verification.md) | 回读配置值只证明"写对了"不证明"生效了"；验收拆两条，端到端那条若依赖别人就别挂自己卡上 |
 | [锁死依赖的升级评估探针法](patterns/locked-dependency-upgrade-probe.md) | 隔离 venv 零改动跑全量测试+新旧报文 diff+客户端矩阵,实测替代 changelog 阅读;评估 spike 与 TDD 实施分两段 |
+| [人类可读文案就是 API](patterns/user-facing-copy-is-machine-contract.md) | 下游一旦用文案前缀做重试/熔断/计费判断，「给人看的提示语」就变成机器契约，改措辞=改 API 签名；识别后三件事：测试逐字钉死、写进项目红线文档、承诺变更前知会下游 |
 
 ### Anti-patterns — 反模式
 
@@ -95,6 +96,7 @@ claude-code-playbook/
 | [合成事件驱动不了框架组件](anti-patterns/synthetic-events-dont-drive-framework-components.md) | `el.click()` 点得动简单按钮，**却点不动悬停展开/级联/拖拽**，且失败静默（不抛错、DOM 不变）。实测同一个下拉：顶层展开 `.click()` ✅（**正是这一下制造了「click 可用」的错觉**），切换左列一级分类 `.click()` ❌、手工派发 `pointerover`+`mouseover`+`mouseenter` 仍 ❌，换 CDP 真实鼠标（`Input.dispatchMouseEvent`）一次成功。事件保真度是阶梯：**JS 合成 < 自动化注入 < 真机手势**，各级都有天花板（CDP 注入也不产生原生 `dblclick`）。对策：按交互类型选层级而非按顺手程度——需要指针轨迹的直接从第二级起步；一次失败就升级，别在层级 1 里堆花样；级联菜单每点一次结构就变，点完立刻回读再决定下一步选择器 |
 | [计划里的参考代码在评审修复后不同步](anti-patterns/plan-reference-code-drifts-after-review-fix.md) | 「plan 写完整参考代码 → 实现者转写 → review 修实现」的流程里，**review 的输入是 diff，而 plan 在上一个提交里、不在 diff 中**，修复只落进 `src/`。漂移方向是单向的：只有被判定为错的那部分才会在代码侧被改掉，于是文档侧留下的**恰好是缺陷版**，还以「Step 3: 写最小实现」的指令形式躺着等人抄。实测案例：`promote()` 的参考实现可复活已过期会话、可对已认证 sid 静默换人、跨认证边界不换 sid（session fixation），终审在实现 diff 上抓到并修好了代码，**计划文件里那份原封不动**；re-review 判 Minor（确实不影响运行中代码），但漏看三点：它是指令不是描述、同一份计划还有六个任务没做且实现者必须读它、回滚重做会照抄。防法：把「计划/spec 里的对应代码块与签名」写进 fix wave 的显式条目——已完成任务的计划正文同样会被读；签名漂移可 grep 机器比对。判严重度时：文档不一致默认 Minor，但满足「会被照抄 + 涉安全 + 有未做完的下游任务」三条要升级 |
 | [「纯 mock 单测」里藏着真实网络](anti-patterns/unmocked-network-in-pure-mock-tests.md) | 契约只写在文档里没落成机制，构造期的健康检查/版本对账就溜进了单测。平时只表现为「有点慢」——**谁都不会为「测试跑 4 分钟」立案**——直到沙箱把出网重定向到黑洞网段才变成挂死：`urlopen(timeout=5)` 的 timeout 是 socket 超时，**`getaddrinfo` 不受它约束**，同一个 bug 两种症状、其中一种被容忍了很久。而且探测发生在断言**之前**：一个专测 fail-fast 的用例根本走不到断言点，却仍然是绿的。三个可迁移点：①守卫要用 `pytest.fail`（`BaseException`）才穿得透遍地的 `except Exception:`，普通异常做的守卫会被降级层静默吞掉、比没有更糟 ②mock 的返回值选「与现状同构」的而非「看起来更干净」的（返回空集会让下游算出一条 drift warning 透进所有响应、改掉黄金预期；抛异常才是零行为变更）③放行按 marker 不按路径，忘打 marker 会炸出来而不是静默变慢。数据：227.66s→**7.80s**（29x），CPU **4%→75%**，1606 passed 逐项一致。**CPU 空闲率就是「测试在等谁」的读数** |
+| [配置缺失被裸 except 吞成「上游故障」](anti-patterns/config-gap-masquerades-as-upstream-failure.md) | 一句降级文案同时是**机器判据**（计费豁免/下游熔断/告警分类）时，真正的风险不是有人改了它，而是**发出它的那条 `except` 覆盖面比文案描述的条件宽**——`.env` 缺一个 URL，f-string 拼出字面量 `"None/v1/oauth/access_token"`，`urllib` 构造时抛 `ValueError`，被 `except Exception` 吞成「数据源查询失败」。三个连锁后果彼此自洽因而不可见：**免掉了客户的费**（我方漏配却走故障豁免）、**对下游谎报数据源挂了**、**SLA 对着纯配置问题开故障单**；响应里唯一破绽是 `query_time_ms: 0.0`。两个隐形机制：①缺失的配置不 TypeError，而是生成「语法合法但语义荒谬」的值，失败推迟到下游且**形态与运行时故障同形**——事后按异常类型分辨是徒劳的，必须前置判定 ②**mock seam 之上有一条测试盲带**：单测只 mock HTTP 基元 `_request`，而 bug 恰在它的**入参构造**上，20+ 条单测一条也跑不到那几行。解法：专用 `ConfigError` 在发请求前抛（**地址和凭证一起判**，「有 key 就算配好了」是错觉）→ 排在裸 except **之前** → 走异常而非降级响应，使扣费根本不执行（账本零行，同授权预检）。注意「不走故障豁免」≠「该收钱」，两件事分开决定：返回 200+业务 warning 会照常计费，等于让客户为我方漏配付钱。排查窍门：找不走 fail-fast 的可选配置——本项目 5 个数据源里 4 个走 `_env()` 启动即失败，洞**只**在剩下那个裸 `os.environ.get` 上，两分钟排完 |
 
 ### Experiments — 对比实验
 
