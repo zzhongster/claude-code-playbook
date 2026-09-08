@@ -31,6 +31,7 @@ claude-code-playbook/
 | [并行工作流](foundations/06-parallel-workflows.md) | 子 Agent、worktree、batch 的选择 |
 
 ### Patterns — 工程模式
+| [savepoint 内 get-or-create](patterns/savepoint-get-or-create.md) | 先查→没有就在 savepoint 里插并 flush→撞唯一索引回滚 savepoint 再查取已存在行；外层长事务不受影响，并发插同一条从"多一行地雷"变成"拿到同一行" |
 
 | 文档 | 核心结论 |
 |------|---------|
@@ -51,6 +52,7 @@ claude-code-playbook/
 | [人类可读文案就是 API](patterns/user-facing-copy-is-machine-contract.md) | 下游一旦用文案前缀做重试/熔断/计费判断，「给人看的提示语」就变成机器契约，改措辞=改 API 签名；识别后三件事：测试逐字钉死、写进项目红线文档、承诺变更前知会下游 |
 
 ### Anti-patterns — 反模式
+| [无唯一约束的列上用 scalar_one_or_none](anti-patterns/scalar-one-or-none-on-non-unique-columns.md) | 断言"最多一行"只有数据库唯一约束能担保；合库/并发留下 45 对重复行后，AI 跑 50 分钟的结果在入库一步整批回滚、9 个任务连挂。三层修：查询不断言 + 去重建唯一索引 + 写路径 savepoint 兜底 |
 
 | 文档 | 踩坑场景 |
 |------|---------|
