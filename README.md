@@ -31,6 +31,10 @@ claude-code-playbook/
 | [并行工作流](foundations/06-parallel-workflows.md) | 子 Agent、worktree、batch 的选择 |
 
 ### Patterns — 工程模式
+| [模糊名聚合对手方要剔掉 X 自己](patterns/self-match-exclusion-in-counterparty-aggregation.md) | 模糊匹配把关联公司收进来后，X 自己成了 X 的头号供应商（30.6%）；修在"谁被算进来了"不在"从哪个方向算"：剔同集团行、单列不丢，卡面三条按方向切的候选全否 |
+| [盘点并行 AI 会话的孤悬分支](patterns/auditing-stray-branches-from-parallel-ai-sessions.md) | `git cherry` 判补丁等价、`merge-tree --write-tree` 干跑冲突、`merge-base --is-ancestor` 核祖先——三条只读命令把 5 条领先分支分成"删/已重写合入/真孤悬"，捞出一条做完 3 天没人知道的修复 |
+| [worktree 会话沙盒按 git 字样拦命令](patterns/worktree-session-sandbox-git-keyword-workaround.md) | `rsync --filter=':- .gitignore'`、for 循环、`. .env`、多 heredoc 都会被拒；把复杂度挪进脚本文件，命令串只剩一个动词 |
+| [rsync 部署排除规则读 .gitignore + itemize 干跑](patterns/rsync-deploy-exclude-from-gitignore-with-itemized-dry-run.md) | 手写 exclude 两天漏三项、三次删远端文件；`--filter=':- .gitignore'` 排除即保护，干跑只看 `deleting` 与 `<f.s` 两类行 |
 | [savepoint 内 get-or-create](patterns/savepoint-get-or-create.md) | 先查→没有就在 savepoint 里插并 flush→撞唯一索引回滚 savepoint 再查取已存在行；外层长事务不受影响，并发插同一条从"多一行地雷"变成"拿到同一行" |
 
 | 文档 | 核心结论 |
@@ -52,6 +56,8 @@ claude-code-playbook/
 | [人类可读文案就是 API](patterns/user-facing-copy-is-machine-contract.md) | 下游一旦用文案前缀做重试/熔断/计费判断，「给人看的提示语」就变成机器契约，改措辞=改 API 签名；识别后三件事：测试逐字钉死、写进项目红线文档、承诺变更前知会下游 |
 
 ### Anti-patterns — 反模式
+| [用独立 IP 数判密钥分发](anti-patterns/distinct-ip-count-as-credential-sharing-signal.md) | "去过多少地方"≠"是否同时多处在用"：CI runner、探针、移动办公全被标成疑似泄露，两台机器各 2 把全误报；按档位豁免 + 点名豁免 + 并发窗口列（同 10 分钟 ≥2 IP），告警走私信不写日志 |
+| [把 it.fails 改成 it 就算翻正](anti-patterns/flipping-xfail-by-keyword-only.md) | 预期失败期间断言之后的世界从没执行过：按小时截断的幂等键会撞 24h 窗口、共享计数器被并发跑污染、邻居注释方向反了——翻正前过六条清单 |
 | [无唯一约束的列上用 scalar_one_or_none](anti-patterns/scalar-one-or-none-on-non-unique-columns.md) | 断言"最多一行"只有数据库唯一约束能担保；合库/并发留下 45 对重复行后，AI 跑 50 分钟的结果在入库一步整批回滚、9 个任务连挂。三层修：查询不断言 + 去重建唯一索引 + 写路径 savepoint 兜底 |
 
 | 文档 | 踩坑场景 |
