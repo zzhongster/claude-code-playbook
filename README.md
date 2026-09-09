@@ -56,6 +56,7 @@ claude-code-playbook/
 | [人类可读文案就是 API](patterns/user-facing-copy-is-machine-contract.md) | 下游一旦用文案前缀做重试/熔断/计费判断，「给人看的提示语」就变成机器契约，改措辞=改 API 签名；识别后三件事：测试逐字钉死、写进项目红线文档、承诺变更前知会下游 |
 
 ### Anti-patterns — 反模式
+| [macOS 自带 zip 打中文名包 Windows 乱码](anti-patterns/macos-zip-cli-never-sets-utf8-name-flag.md) | Apple 版 Info-ZIP 3.0 无论 locale、带不带 `-X` 都不写 UTF-8 文件名标志位（5 组对照全 N）；Mac 上解压正常所以本地验不出，Windows 按 GBK 解全乱。改 Python `zipfile` 打包，用 `flag_bits & 0x800` 自检，别用 `unzip -l` 验 |
 | [用独立 IP 数判密钥分发](anti-patterns/distinct-ip-count-as-credential-sharing-signal.md) | "去过多少地方"≠"是否同时多处在用"：CI runner、探针、移动办公全被标成疑似泄露，两台机器各 2 把全误报；按档位豁免 + 点名豁免 + 并发窗口列（同 10 分钟 ≥2 IP），告警走私信不写日志 |
 | [把 it.fails 改成 it 就算翻正](anti-patterns/flipping-xfail-by-keyword-only.md) | 预期失败期间断言之后的世界从没执行过：按小时截断的幂等键会撞 24h 窗口、共享计数器被并发跑污染、邻居注释方向反了——翻正前过六条清单 |
 | [无唯一约束的列上用 scalar_one_or_none](anti-patterns/scalar-one-or-none-on-non-unique-columns.md) | 断言"最多一行"只有数据库唯一约束能担保；合库/并发留下 45 对重复行后，AI 跑 50 分钟的结果在入库一步整批回滚、9 个任务连挂。三层修：查询不断言 + 去重建唯一索引 + 写路径 savepoint 兜底 |
