@@ -116,6 +116,13 @@ claude-code-playbook/
 | [Skill vs Pipeline 全量对比](experiments/2026-03-12-skill-vs-pipeline.md) | 4 种架构方案的完整数据 |
 | [遗留系统图谱证据门禁](experiments/2026-09-01-legacy-atlas-evidence-gates.md) | 4,314 个源码输入 + 实库 + Windows 状态机的结构/运行双门禁实验 |
 | [两发法：第三方集成验证](experiments/2026-09-03-two-shot-probe-third-party-integration.md) | 只打一发会把「被前置闸挡住」误读成「格式不对」——三发受控对照，每次只改一个变量 |
+| [写技能前先跑无技能基线](experiments/2026-09-10-skill-tdd-baseline-vs-with-skill.md) | 「记录一条需求」的技能：基线子会话不核前提、转而去读实现（63 次调用）；有技能后 5 条断言逐条找一手来源、不读实现——token 与用时**没降**，预算从「读实现」搬到「核前提」，该看的指标是转述有没有被核过 |
+
+### Templates — 可复用模板
+
+| 文档 | 用途 |
+|------|------|
+| [adding-requirement 技能](templates/skill-adding-requirement.md) | 冻结期「记录一条需求」：核前提 → 查复发 → 落卡，附移植时要换的字段表；SKILL.md 原文可直接落 `~/.claude/skills/` |
 
 ## 内容来源
 
