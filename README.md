@@ -36,6 +36,7 @@ claude-code-playbook/
 | [worktree 会话沙盒按 git 字样拦命令](patterns/worktree-session-sandbox-git-keyword-workaround.md) | `rsync --filter=':- .gitignore'`、for 循环、`. .env`、多 heredoc 都会被拒；把复杂度挪进脚本文件，命令串只剩一个动词 |
 | [rsync 部署排除规则读 .gitignore + itemize 干跑](patterns/rsync-deploy-exclude-from-gitignore-with-itemized-dry-run.md) | 手写 exclude 两天漏三项、三次删远端文件；`--filter=':- .gitignore'` 排除即保护，干跑只看 `deleting` 与 `<f.s` 两类行 |
 | [savepoint 内 get-or-create](patterns/savepoint-get-or-create.md) | 先查→没有就在 savepoint 里插并 flush→撞唯一索引回滚 savepoint 再查取已存在行；外层长事务不受影响，并发插同一条从"多一行地雷"变成"拿到同一行" |
+| [进程级浏览器池](patterns/process-level-browser-pool.md) | 长驻进程里 Playwright 只起一个 chromium，业务借 context、信号量限并发、finally 带超时关；断连自动重启，启动清孤儿，健康接口暴露 chrome_procs |
 
 | 文档 | 核心结论 |
 |------|---------|
@@ -60,6 +61,7 @@ claude-code-playbook/
 | [用独立 IP 数判密钥分发](anti-patterns/distinct-ip-count-as-credential-sharing-signal.md) | "去过多少地方"≠"是否同时多处在用"：CI runner、探针、移动办公全被标成疑似泄露，两台机器各 2 把全误报；按档位豁免 + 点名豁免 + 并发窗口列（同 10 分钟 ≥2 IP），告警走私信不写日志 |
 | [把 it.fails 改成 it 就算翻正](anti-patterns/flipping-xfail-by-keyword-only.md) | 预期失败期间断言之后的世界从没执行过：按小时截断的幂等键会撞 24h 窗口、共享计数器被并发跑污染、邻居注释方向反了——翻正前过六条清单 |
 | [无唯一约束的列上用 scalar_one_or_none](anti-patterns/scalar-one-or-none-on-non-unique-columns.md) | 断言"最多一行"只有数据库唯一约束能担保；合库/并发留下 45 对重复行后，AI 跑 50 分钟的结果在入库一步整批回滚、9 个任务连挂。三层修：查询不断言 + 去重建唯一索引 + 写路径 savepoint 兜底 |
+| [web 进程里每次调用起一个浏览器](anti-patterns/per-call-browser-launch-in-web-process.md) | 每家公司 launch 一个 chromium，异常路径漏关 + driver 停掉 chromium 不死，25 家留下 305 个 chrome 进程，整站 66 分钟不可用；DB 全程健康、日志照常滚，容器里没 ps 靠 /proc 扫 + py-spy 定性 |
 
 | 文档 | 踩坑场景 |
 |------|---------|
