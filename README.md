@@ -58,6 +58,7 @@ claude-code-playbook/
 | [人类可读文案就是 API](patterns/user-facing-copy-is-machine-contract.md) | 下游一旦用文案前缀做重试/熔断/计费判断，「给人看的提示语」就变成机器契约，改措辞=改 API 签名；识别后三件事：测试逐字钉死、写进项目红线文档、承诺变更前知会下游 |
 
 ### Anti-patterns — 反模式
+| [手工例外表的默认分支恰是出错分支](anti-patterns/manual-exception-table-default-branch-is-the-bug.md) | 缺陷只能人工确认，就用硬编码例外表兜——没登记的落进默认分支，而默认分支正是错的。5 首缺陷曲只填了 1 条，其余挂「待确认」TODO 静默带病上线 2 个月才被用户发现；三种静态信号全失效，靠录入序号（批次年代）+ 已知正确样本反验证提取法破局。教训：例外表默认必须 fail loud，「待确认」= 已知带病上线 |
 | [macOS 自带 zip 打中文名包 Windows 乱码](anti-patterns/macos-zip-cli-never-sets-utf8-name-flag.md) | Apple 版 Info-ZIP 3.0 无论 locale、带不带 `-X` 都不写 UTF-8 文件名标志位（5 组对照全 N）；Mac 上解压正常所以本地验不出，Windows 按 GBK 解全乱。改 Python `zipfile` 打包，用 `flag_bits & 0x800` 自检，别用 `unzip -l` 验 |
 | [用独立 IP 数判密钥分发](anti-patterns/distinct-ip-count-as-credential-sharing-signal.md) | "去过多少地方"≠"是否同时多处在用"：CI runner、探针、移动办公全被标成疑似泄露，两台机器各 2 把全误报；按档位豁免 + 点名豁免 + 并发窗口列（同 10 分钟 ≥2 IP），告警走私信不写日志 |
 | [网页双流音频靠 JS 追赶同步](anti-patterns/dual-stream-web-audio-js-sync-on-mobile.md) | 两个 `<audio>` 各自缓冲，硬 seek/变速追赶在手机上必断续，两轮补丁测试全绿真机仍卡；根治是服务端预混单文件、播放器单流三源切换 |
