@@ -31,6 +31,7 @@ claude-code-playbook/
 | [并行工作流](foundations/06-parallel-workflows.md) | 子 Agent、worktree、batch 的选择 |
 
 ### Patterns — 工程模式
+| [并行联网调研子代理分章增量落盘](patterns/parallel-research-subagents-incremental-sections.md) | 法规/认证/市场/客户 4 路子代理每完成一节就追加写文件，主线程 `grep '^## '` 看进度、`sed -n` 按段取读；4 路 11–25 分钟全部跑完，上次单路憋到成稿才写的在 600s 无进度处被杀。prompt 把"先核实用户前提"列首项，推翻了"北斗制裁名单"这个不存在的前提；子代理摘要里的计数（80→实为 68）要回文件复算 |
 | [模糊名聚合对手方要剔掉 X 自己](patterns/self-match-exclusion-in-counterparty-aggregation.md) | 模糊匹配把关联公司收进来后，X 自己成了 X 的头号供应商（30.6%）；修在"谁被算进来了"不在"从哪个方向算"：剔同集团行、单列不丢，卡面三条按方向切的候选全否 |
 | [盘点并行 AI 会话的孤悬分支](patterns/auditing-stray-branches-from-parallel-ai-sessions.md) | `git cherry` 判补丁等价、`merge-tree --write-tree` 干跑冲突、`merge-base --is-ancestor` 核祖先——三条只读命令把 5 条领先分支分成"删/已重写合入/真孤悬"，捞出一条做完 3 天没人知道的修复 |
 | [OSMD 手机排版：隐藏钢琴声部 + 两遍排版限行](patterns/osmd-mobile-vocal-only-two-pass-line-cap.md) | 375px 上钢琴大谱表把每行撑成 1 小节；隐藏非主声部是主收益、缩放是次收益；等宽会叠歌词、强制每行 3 会出孤行，两遍排版拆行注入换行永远 ≤3 且不孤行 |
@@ -58,6 +59,9 @@ claude-code-playbook/
 | [人类可读文案就是 API](patterns/user-facing-copy-is-machine-contract.md) | 下游一旦用文案前缀做重试/熔断/计费判断，「给人看的提示语」就变成机器契约，改措辞=改 API 签名；识别后三件事：测试逐字钉死、写进项目红线文档、承诺变更前知会下游 |
 
 ### Anti-patterns — 反模式
+| [YTD 年化 + 未穷举的"唯一/最低"](anti-patterns/partial-year-annualization-and-unverified-superlatives.md) | 1-7 月 ×12/7 把增速从同期 +21% 夸成 +35.6%（北半球 1-7 月占全年 72–89%，南半球仅 44%）；只比了全章就写"唯一增长子目"（实为 6 个）；南半球淡季被读成"少而贵"（同期实为量价齐升）。三条标题结论交付后反转。改法：不年化只做同期比、全称断言先穷举并断言加总、跨国单价用同期相对指数 |
+| [自写 md→docx 转换器四类静默渲染错](anti-patterns/md-to-docx-converter-silent-rendering-bugs.md) | 表头空白、多列表连号、引用块 `**` 原样显示、列表续行拆段且编号全"1."——文件照常打开、字数对得上，只有转 PDF 翻页才看得出；两份报告踩了四个。每次生成后 `soffice` 转 PDF、`pdftotext` 定位页、抽看四类构造 |
+| [无头截图当手机验收结论](anti-patterns/render-verification-false-alarms.md) | 无头 Chrome 最小窗宽约 500px，390 宽截图伪装成横向溢出；锚点 URL 截图空白；面板视口模拟晚于首帧让"图表贴右"读到 scrollLeft=0。布局问题用 `scrollWidth`/`innerWidth` 量值判，把量值写进 `document.title` 让 `--dump-dom` 带出来 |
 | [手工例外表的默认分支恰是出错分支](anti-patterns/manual-exception-table-default-branch-is-the-bug.md) | 缺陷只能人工确认，就用硬编码例外表兜——没登记的落进默认分支，而默认分支正是错的。5 首缺陷曲只填了 1 条，其余挂「待确认」TODO 静默带病上线 2 个月才被用户发现；三种静态信号全失效，靠录入序号（批次年代）+ 已知正确样本反验证提取法破局。教训：例外表默认必须 fail loud，「待确认」= 已知带病上线 |
 | [macOS 自带 zip 打中文名包 Windows 乱码](anti-patterns/macos-zip-cli-never-sets-utf8-name-flag.md) | Apple 版 Info-ZIP 3.0 无论 locale、带不带 `-X` 都不写 UTF-8 文件名标志位（5 组对照全 N）；Mac 上解压正常所以本地验不出，Windows 按 GBK 解全乱。改 Python `zipfile` 打包，用 `flag_bits & 0x800` 自检，别用 `unzip -l` 验 |
 | [用独立 IP 数判密钥分发](anti-patterns/distinct-ip-count-as-credential-sharing-signal.md) | "去过多少地方"≠"是否同时多处在用"：CI runner、探针、移动办公全被标成疑似泄露，两台机器各 2 把全误报；按档位豁免 + 点名豁免 + 并发窗口列（同 10 分钟 ≥2 IP），告警走私信不写日志 |
