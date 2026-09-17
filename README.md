@@ -31,6 +31,7 @@ claude-code-playbook/
 | [并行工作流](foundations/06-parallel-workflows.md) | 子 Agent、worktree、batch 的选择 |
 
 ### Patterns — 工程模式
+| [token 换值的布局不变性取证：同 DOM 注入旧值比盒子](patterns/token-swap-layout-invariance-by-injecting-old-values.md) | 85 个颜色 token 换代，要证「只改颜色不改布局」：同一份 DOM 先测新值、注入旧颜色变量再测，逐元素比 `getBoundingClientRect`，3 页 × 亮暗约 3,700 元素 0 差异。让 0 可信要五件事：冻结计时器、主题走页面自己的机制并核实（走查页挂载时强制亮色，「暗色」组曾恒为 0）、停掉带 `!important` 的动画、先自比、探针选亮暗新旧四值都不同的变量；测量页冻结时钟后截图会卡死，截图另开页 |
 | [并行联网调研子代理分章增量落盘](patterns/parallel-research-subagents-incremental-sections.md) | 法规/认证/市场/客户 4 路子代理每完成一节就追加写文件，主线程 `grep '^## '` 看进度、`sed -n` 按段取读；4 路 11–25 分钟全部跑完，上次单路憋到成稿才写的在 600s 无进度处被杀。prompt 把"先核实用户前提"列首项，推翻了"北斗制裁名单"这个不存在的前提；子代理摘要里的计数（80→实为 68）要回文件复算 |
 | [模糊名聚合对手方要剔掉 X 自己](patterns/self-match-exclusion-in-counterparty-aggregation.md) | 模糊匹配把关联公司收进来后，X 自己成了 X 的头号供应商（30.6%）；修在"谁被算进来了"不在"从哪个方向算"：剔同集团行、单列不丢，卡面三条按方向切的候选全否 |
 | [盘点并行 AI 会话的孤悬分支](patterns/auditing-stray-branches-from-parallel-ai-sessions.md) | `git cherry` 判补丁等价、`merge-tree --write-tree` 干跑冲突、`merge-base --is-ancestor` 核祖先——三条只读命令把 5 条领先分支分成"删/已重写合入/真孤悬"，捞出一条做完 3 天没人知道的修复 |
