@@ -60,6 +60,7 @@ claude-code-playbook/
 | [人类可读文案就是 API](patterns/user-facing-copy-is-machine-contract.md) | 下游一旦用文案前缀做重试/熔断/计费判断，「给人看的提示语」就变成机器契约，改措辞=改 API 签名；识别后三件事：测试逐字钉死、写进项目红线文档、承诺变更前知会下游 |
 
 ### Anti-patterns — 反模式
+| [管道喂命令改网络设备配置](anti-patterns/piped-cli-script-for-network-device-changes.md) | `{echo; sleep} | ssh -tt` 看不到返回：`Error:` 后照跑、预埋的 `y` 替你确认了没预料到的「删除地址池」、输错一次密码整批命令被吞。华为 S300 扩 DHCP 时旧接口池被删、新全局池为空。只读巡检可用管道，变更改为分步粘贴 + `read_terminal` 核对或 expect 逐条匹配；附代理 TUN 让端口扫描「全开」的误判 |
 | [YTD 年化 + 未穷举的"唯一/最低"](anti-patterns/partial-year-annualization-and-unverified-superlatives.md) | 1-7 月 ×12/7 把增速从同期 +21% 夸成 +35.6%（北半球 1-7 月占全年 72–89%，南半球仅 44%）；只比了全章就写"唯一增长子目"（实为 6 个）；南半球淡季被读成"少而贵"（同期实为量价齐升）。三条标题结论交付后反转。改法：不年化只做同期比、全称断言先穷举并断言加总、跨国单价用同期相对指数 |
 | [自写 md→docx 转换器四类静默渲染错](anti-patterns/md-to-docx-converter-silent-rendering-bugs.md) | 表头空白、多列表连号、引用块 `**` 原样显示、列表续行拆段且编号全"1."——文件照常打开、字数对得上，只有转 PDF 翻页才看得出；两份报告踩了四个。每次生成后 `soffice` 转 PDF、`pdftotext` 定位页、抽看四类构造 |
 | [无头截图当手机验收结论](anti-patterns/render-verification-false-alarms.md) | 无头 Chrome 最小窗宽约 500px，390 宽截图伪装成横向溢出；锚点 URL 截图空白；面板视口模拟晚于首帧让"图表贴右"读到 scrollLeft=0。布局问题用 `scrollWidth`/`innerWidth` 量值判，把量值写进 `document.title` 让 `--dump-dom` 带出来 |
