@@ -86,6 +86,7 @@ claude-code-playbook/
 | [REALITY 伪装目标升级 TLS 打挂全员握手](anti-patterns/reality-fronting-domain-tls-upgrade-breaks-handshake.md) | www.microsoft.com 升 PQ TLS 后不能再当 REALITY 偷证书目标→全员直连挂→像 IP 被封但换目标(apple)即恢复；localhost 自测定位 |
 | [吞 stderr 把缺工具伪装成空数据](anti-patterns/silencing-stderr-hides-missing-tool-as-empty-data.md) | 诊断命令加 2>/dev/null 把 command-not-found 吞掉，空输出被当真实零值，根因判断走偏 |
 | [GUI 客户端接远程 http MCP 两坑](anti-patterns/mcp-remote-http-client-gotchas.md) | Claude Desktop/WorkBuddy 用 mcp-remote：npx 必须绝对路径(app PATH 精简致 ENOENT)+ 加 --allow-http(拒非 HTTPS)；把命令拎到终端跑定位 |
+| [源码装 MCP 后照抄注册命令](anti-patterns/mcp-source-install-copied-registration-command.md) | `claude mcp list` 绿灯≠GUI 能起（裸 node 在精简 PATH 下 ENOENT，`env -i` 实测）；默认 local 作用域只在当前目录生效要 `-s user`；`npm install` 先跑 prepare/install 脚本，审源码+lock 要在 install 前；npm 改 lock 挡 `git pull` |
 | [自动化浏览器假象当应用 bug](anti-patterns/browser-automation-env-false-negatives.md) | 后台 rAF 停转/CDP 无原生双击/缓存旧页/headless WebGL 空白——先 console 探针证明事件到达，再谈改代码 |
 | [实时回调同步干重活，重试状态跨 Attempt 复用](anti-patterns/realtime-callback-blocking-and-global-attempt-state.md) | 回调只复制 primitive 快照并有界投递；readiness、写入确认和取消必须按 attempt 隔离 |
 | [未抽样验证就照单全收 lint 报告](anti-patterns/trust-linter-output-without-sampling.md) | wiki lint 报 147 条"悬空链接"实为 0 条真悬空（工具不认 \|别名 语法）；批量修复前先抽 3-5 条验证，自引用也报错=最强信号 |
