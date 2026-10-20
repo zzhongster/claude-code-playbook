@@ -63,3 +63,4 @@ CSS 里引用一个**不存在**的自定义属性，浏览器不会回退到默
 
 - [green-metric-measures-wrong-mechanism.md](green-metric-measures-wrong-mechanism.md) —— 同一个项目里，验证手段本身给出虚假绿灯。
 - [tmp-path-hides-rerun-pollution.md](tmp-path-hides-rerun-pollution.md) —— 另一类测试结构性看不见的缺陷。
+- [dead-stylesheet-hidden-by-thin-page.md](dead-stylesheet-hidden-by-thin-page.md) —— 同一个丢弃机制的另一种藏法：页面上内容太少，坏掉的规则半年没有可见后果。

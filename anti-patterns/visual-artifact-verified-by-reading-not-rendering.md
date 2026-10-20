@@ -114,3 +114,4 @@ def scan(text):
 - [SEO/GEO 基建只验本地产物，不验线上响应](seo-verified-in-build-never-in-production.md) —— 同构：验的是中间产物而非最终形态，且失效完全静默
 - [未抽样验证就照单全收 lint 报告](trust-linter-output-without-sampling.md) —— 同类教训：工具说"没问题"不等于没问题，本例更进一步，是检查工具与故障共享同一个解析错误
 - [ASCII 预览不是设计规格](ascii-preview-not-design-spec.md) —— 同属"视觉的东西不能靠文本表示验收"
+- [整份样式表失效却因页面内容太少而藏久](dead-stylesheet-hidden-by-thin-page.md) —— 反过来的情形：渲染过无数次依然没发现，因为页面上没有足够内容去触发坏掉的规则
