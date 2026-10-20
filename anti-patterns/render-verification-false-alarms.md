@@ -46,3 +46,4 @@
 - [AI 生成的视觉产物只读代码验收、从不真渲染](visual-artifact-verified-by-reading-not-rendering.md)——先要渲染；本条补充"渲染结果本身也要交叉验证"
 - [浏览器自动化环境里的假阴性](browser-automation-env-false-negatives.md)
 - [自写 md→docx 转换器四类静默渲染错](md-to-docx-converter-silent-rendering-bugs.md)
+- [用源码的写法去校验预渲染产物](prerender-output-verification-false-negatives.md)——同一族的另一半：不是渲染工具撒谎，而是**校验脚本**对产物形态的假设是错的（属性被重排、类名其实在 `<style>` 里、`serve -s` 让你验错页面）

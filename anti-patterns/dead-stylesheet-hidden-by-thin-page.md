@@ -47,16 +47,30 @@ git 追溯显示：这些行在**半年前就是这样**，期间该页上过线
 
 同一个文件里还有第三条死规则：答案区的样式写的是 antd 5 的类名 `.ant-collapse-content-box`，而产物里是 `.ant-collapse-body`。**改名也好、不改也好，它从来没生效过，因为外面还套着 `:global`。** 三条死规则在一个文件里共存半年，零症状。
 
+这第三条值得单独记一笔：**覆盖组件库的内部类名，等于依赖一份没有版本号的契约**。antd 5→6 把 `ant-collapse-content-box` 改成 `ant-collapse-body`，升级日志里不会把它当 breaking change，而你的 less 规则只是静静地不再命中——没有构建错误、没有运行时报错、没有告警。上面第 1 条里的第三条 grep 就是针对它的：把 less 里出现的 `.ant-*` 类名逐个回产物里查，0 命中的即死规则。组件库大版本升级后应当跑一遍。
+
 ### 怎么防
 
 1. **把编译产物当验收对象，而不是源码。** 一条 grep 就能拦住这一整类，不需要浏览器：
 
    ```bash
-   # 未被求值的预处理器表达式泄漏进产物
-   grep -o "[0-9.]*rem/[0-9]*" build/static/css/*.css | wc -l   # 必须是 0
+   # 未被求值的预处理器表达式泄漏进产物（容忍 `/` 两侧的空格，Less 原样输出时可能保留）
+   grep -o "[0-9.]*rem */ *[0-9]*" build/static/css/*.css | wc -l   # 必须是 0
    # CSS Modules 语法泄漏进非 Modules 产物
-   grep -c ":global" build/static/css/*.css                      # 必须是 0
+   grep -c ":global" build/static/css/*.css                          # 必须是 0
+   # 覆盖组件库内部类名的规则，逐个回产物里查有没有命中
+   find src -name '*.less' -exec grep -oh "\.ant-[a-z0-9-]*" {} + | sort -u | while read c; do
+     n=$(grep -oh -- "$c" build/static/css/*.css | wc -l | tr -d " ")
+     [ "$n" = 0 ] && echo "未进产物: $c"
+   done
    ```
+
+   第三条的输出要会读。它判定的只是"**这条规则没出现在 shipped CSS 里**"，而这有两个原因，一个是缺陷、一个不是：
+
+   - 上游改了类名、或选择器被破坏 → **真死规则**
+   - 那个 less 文件根本没被引入（视图未被路由、组件已废弃）→ **误报**
+
+   实测本仓：命令吐出 10 条，**10 条全是误报**，全部来自 `company-list` 与 `company-detail` 两个视图——它们在 `src/router/index.js` 里的路由是注释掉的。所以用法是**先按文件归并、排除未被引用的视图，再看剩下的**。另外它是粗筛：`.ant-collapse` 会被 `.ant-collapse-body` 命中，所以"有命中"不等于"你那条规则生效了"，只有"0 命中"是确定信号。
 
    本例实测：全站 12 处未求值除法，**全部集中在一个 chunk 里** —— 横向对比立刻指明了是哪一页的问题，而不是构建配置的通病。
 
@@ -87,4 +101,6 @@ git 追溯显示：这些行在**半年前就是这样**，期间该页上过线
 
 - [undefined-css-var-kills-declaration.md](undefined-css-var-kills-declaration.md) —— 同一个丢弃机制（非法值 → 整条声明作废、不报错不回退）。区别在于那条的盲区是 diff 评审看不到其他消费者，本条的盲区是页面上没有足够内容去触发规则。
 - [visual-artifact-verified-by-reading-not-rendering.md](visual-artifact-verified-by-reading-not-rendering.md) —— 同样是整份样式表死掉。区别在于那条是**从没真渲染过**，而本条**渲染过无数次**（人看过、预渲染抓过）依然没发现。
+- [dual-track-responsive-specificity-mismatch.md](dual-track-responsive-specificity-mismatch.md) —— 本条的直接后果：把这些死规则修活之后，桌面规则开始赢移动端规则，移动端字号被压到 3.12px。**修活一条长期失效的规则是一次隐性 breaking change。**
+- [lazy-rendered-panels-missing-from-prerender.md](lazy-rendered-panels-missing-from-prerender.md) —— 两个缺陷互相掩护：答案区从来没显示过，所以答案区的死样式也一直没人发现。
 - [seo-verified-in-build-never-in-production.md](seo-verified-in-build-never-in-production.md) —— 同一个官网项目更早的一条：只验本地 build、不验线上态。

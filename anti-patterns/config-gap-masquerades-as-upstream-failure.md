@@ -143,5 +143,6 @@ except Exception:
 - [吞 stderr 把缺工具伪装成空数据](silencing-stderr-hides-missing-tool-as-empty-data.md) —— 同一族："错误被伪装成合法的观测结果"。那条在 shell 诊断层，本条在应用降级层。
 - [测试全绿，但拆掉修复它还是全绿](guard-passes-without-the-fix.md) / [TDD 假 RED](tdd-fake-red.md) —— 本次的 7 条用例用了它们的 revert-FAIL 验证法；还原动作放在 `finally` 里，不写成末尾一条命令（超时中断会留下污染文件）。
 - [纯 mock 单测里藏着真实网络](unmocked-network-in-pure-mock-tests.md) —— 同样是"mock 边界没想清楚"，方向相反：那条是外部依赖漏进来，本条是自己的代码被挡在覆盖之外。
+- [构建脚本的容错分支不产出派生文件](fallback-branch-skips-derived-artifacts.md) —— 同一个"一个 catch 盖住两类条件"的主题搬到构建期：远端抖动与"本地内容写错了"共用一条降级路径，于是后者被容错掉，页面根本不生成。
 
 （来源：trade-agent-data 2026-09-06，Linear YC3-47 同族。）

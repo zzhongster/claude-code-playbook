@@ -103,3 +103,6 @@ curl -sL -A "Mozilla/5.0 (compatible; Bytespider; ...)" https://example.com/ | w
 
 - [预渲染序列化重排属性](prerender-serialization-reorders-attributes.md) — 同一项目的另一处静默失效
 - [SPA 模板里硬编码页面级标签](spa-template-hardcoded-page-level-tags.md) — 也属于"不影响可见功能"的隐蔽 bug
+- [构建脚本的容错分支不产出派生文件](fallback-branch-skips-derived-artifacts.md) — "页面根本没产出"的上游成因之一：降级分支跳过了预渲染清单的重算
+- [懒渲染组件吃掉预渲染正文](lazy-rendered-panels-missing-from-prerender.md) — 页面产出了、字数也涨了，但正文不在里面
+- [用源码的写法去校验预渲染产物](prerender-output-verification-false-negatives.md) — 本地产物这一关怎么验才不假阳/假阴

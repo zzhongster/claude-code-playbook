@@ -106,3 +106,4 @@ if (got !== want) throw new Error("验证标签形态与官方示例不一致");
 
 - [SEO 基建只验本地产物，不验线上响应](seo-verified-in-build-never-in-production.md) — 同一项目、同一天发现的另一处静默失效
 - [SPA 模板里硬编码页面级标签](spa-template-hardcoded-page-level-tags.md)
+- [用源码的写法去校验预渲染产物](prerender-output-verification-false-negatives.md) — 同一个序列化事实的**对内**后果：你自己的校验脚本也会因为属性重排（外加 Helmet 的 `data-rh`）而假阴性，一度误判成"description 0 条、canonical 缺失"
