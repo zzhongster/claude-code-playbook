@@ -71,7 +71,7 @@ rebuildPrerenderInclude(news, localArticles);
 NEWS_SNAPSHOT_ORIGIN=http://127.0.0.1:9 npm run build
 
 # 断言：远端失败了，但本地内容仍然进了两份派生产物
-grep -c '/insights/' build/sitemap.xml                 # 必须 == 本地文章数 + 1（列表页）
+grep -c '/insights/' build/sitemap.xml                 # 必须 == 本地文章数（列表页是 /insights，不带尾斜杠，不在此计数内）
 ls -d build/insights/*/index.html | wc -l              # 必须 == 本地文章数
 ```
 
