@@ -31,6 +31,7 @@ claude-code-playbook/
 | [并行工作流](foundations/06-parallel-workflows.md) | 子 Agent、worktree、batch 的选择 |
 
 ### Patterns — 工程模式
+| [CI 按读依赖图选测](patterns/ci-test-selection-by-traced-read-map.md) | 非代码文件改动只跑**追踪到读过它的测试**：pytest 插件包 `io.open`，覆盖运行期、模块导入期、Python 子进程，另记全局读取；每块区域先清空全量重跑，证明「失败 ⊆ 读取方」才启用。只信修改不信增删改名，依赖图生成后读取方代码或 conftest 变了就退回路径规则。改一个剧本从 15 任务约 178 机器分钟降到 1 任务 47 秒；拆前先拿 CI 日志分「装依赖/收集/跑测试」三段、用真实分组函数复算——差点按错误分析把不到 1 分钟的测试拆成 4 个新分片 |
 | [token 换值的布局不变性取证：同 DOM 注入旧值比盒子](patterns/token-swap-layout-invariance-by-injecting-old-values.md) | 85 个颜色 token 换代，要证「只改颜色不改布局」：同一份 DOM 先测新值、注入旧颜色变量再测，逐元素比 `getBoundingClientRect`，3 页 × 亮暗约 3,700 元素 0 差异。让 0 可信要五件事：冻结计时器、主题走页面自己的机制并核实（走查页挂载时强制亮色，「暗色」组曾恒为 0）、停掉带 `!important` 的动画、先自比、探针选亮暗新旧四值都不同的变量；测量页冻结时钟后截图会卡死，截图另开页 |
 | [并行联网调研子代理分章增量落盘](patterns/parallel-research-subagents-incremental-sections.md) | 法规/认证/市场/客户 4 路子代理每完成一节就追加写文件，主线程 `grep '^## '` 看进度、`sed -n` 按段取读；4 路 11–25 分钟全部跑完，上次单路憋到成稿才写的在 600s 无进度处被杀。prompt 把"先核实用户前提"列首项，推翻了"北斗制裁名单"这个不存在的前提；子代理摘要里的计数（80→实为 68）要回文件复算 |
 | [模糊名聚合对手方要剔掉 X 自己](patterns/self-match-exclusion-in-counterparty-aggregation.md) | 模糊匹配把关联公司收进来后，X 自己成了 X 的头号供应商（30.6%）；修在"谁被算进来了"不在"从哪个方向算"：剔同集团行、单列不丢，卡面三条按方向切的候选全否 |
@@ -141,6 +142,7 @@ claude-code-playbook/
 | [遗留系统图谱证据门禁](experiments/2026-09-01-legacy-atlas-evidence-gates.md) | 4,314 个源码输入 + 实库 + Windows 状态机的结构/运行双门禁实验 |
 | [两发法：第三方集成验证](experiments/2026-09-03-two-shot-probe-third-party-integration.md) | 只打一发会把「被前置闸挡住」误读成「格式不对」——三发受控对照，每次只改一个变量 |
 | [写技能前先跑无技能基线](experiments/2026-09-10-skill-tdd-baseline-vs-with-skill.md) | 「记录一条需求」的技能：基线子会话不核前提、转而去读实现（63 次调用）；有技能后 5 条断言逐条找一手来源、不读实现——token 与用时**没降**，预算从「读实现」搬到「核前提」，该看的指标是转述有没有被核过 |
+| [CI 按读依赖图选测（剧本）](experiments/2026-10-22-ci-read-map-playbook-selection.md) | 9800 个测试的读取追踪 × 4 块区域清空重跑：剧本 630 个读取方、清空后 587 个失败全在其中、隐藏依赖 0；`data/`、`platforms/`、渲染规范分别撞上全局导入期读取、模块导入期读取、会话夹具只记首个使用者，未启用。另否定「报告分片被打包测试拖慢」：三段时间里跑测试占 88% |
 
 ### Templates — 可复用模板
 
