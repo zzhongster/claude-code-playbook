@@ -31,6 +31,7 @@ claude-code-playbook/
 | [并行工作流](foundations/06-parallel-workflows.md) | 子 Agent、worktree、batch 的选择 |
 
 ### Patterns — 工程模式
+| [批量出多语言文档：在排版层唯一出口做翻译映射](patterns/translate-documents-at-render-chokepoint.md) | 脚本生成的文档要出另一种语言，不重写脚本、不翻成品：在所有文字必经的函数里加钩子，收集模式导出字符串，替换模式按 `{原文: 译文}` 映射。数字、引用编号、版式沿用原脚本，风险收窄成校验一张表。校验重点是 `亿/万` 换算（错一位数读起来依然通顺）。8 份报告 + 1 份 Excel、3,044 条、5 路子代理实测；映射全过后仍要看版面（分段粘连、窄列断词、字体回退）。仅一个项目验证 |
 | [CI 按读依赖图选测](patterns/ci-test-selection-by-traced-read-map.md) | 非代码文件改动只跑**追踪到读过它的测试**：pytest 插件包 `io.open`，覆盖运行期、模块导入期、Python 子进程，另记全局读取；每块区域先清空全量重跑，证明「失败 ⊆ 读取方」才启用。只信修改不信增删改名，依赖图生成后读取方代码或 conftest 变了就退回路径规则。改一个剧本从 15 任务约 178 机器分钟降到 1 任务 47 秒；拆前先拿 CI 日志分「装依赖/收集/跑测试」三段、用真实分组函数复算——差点按错误分析把不到 1 分钟的测试拆成 4 个新分片 |
 | [token 换值的布局不变性取证：同 DOM 注入旧值比盒子](patterns/token-swap-layout-invariance-by-injecting-old-values.md) | 85 个颜色 token 换代，要证「只改颜色不改布局」：同一份 DOM 先测新值、注入旧颜色变量再测，逐元素比 `getBoundingClientRect`，3 页 × 亮暗约 3,700 元素 0 差异。让 0 可信要五件事：冻结计时器、主题走页面自己的机制并核实（走查页挂载时强制亮色，「暗色」组曾恒为 0）、停掉带 `!important` 的动画、先自比、探针选亮暗新旧四值都不同的变量；测量页冻结时钟后截图会卡死，截图另开页 |
 | [并行联网调研子代理分章增量落盘](patterns/parallel-research-subagents-incremental-sections.md) | 法规/认证/市场/客户 4 路子代理每完成一节就追加写文件，主线程 `grep '^## '` 看进度、`sed -n` 按段取读；4 路 11–25 分钟全部跑完，上次单路憋到成稿才写的在 600s 无进度处被杀。prompt 把"先核实用户前提"列首项，推翻了"北斗制裁名单"这个不存在的前提；子代理摘要里的计数（80→实为 68）要回文件复算 |
