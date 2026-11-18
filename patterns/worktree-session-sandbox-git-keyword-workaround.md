@@ -19,6 +19,7 @@ Claude Code 进了 worktree（`EnterWorktree`）之后，Bash 工具会拒绝它
 | `for b in a b c; do git branch -D "$b"; done` | 同上 | 是 git 操作，但只动分支引用 |
 | `set -a && . ./.env && set +a && python probe.py` | "runs a string through `.`, can't be verified" | source 环境变量 |
 | `cat >> f1 <<'EOF' … EOF` + `cat >> f2 <<'EOF' … EOF` + `python3 - <<'PY' … PY` + `pytest …` 串在一条里 | "too complex to verify" | 多 heredoc 复合命令 |
+| `git add f1 f2 && git -c user.name=… commit -q -F - <<'EOF' … EOF`（2026-11-18） | "too complex to verify that it stays inside the worktree … **Split it into plain, separate commands**" | 是 git 操作，复合 + heredoc 喂提交信息 |
 
 绕法按形态：
 
@@ -27,13 +28,15 @@ Claude Code 进了 worktree（`EnterWorktree`）之后，Bash 工具会拒绝它
 3. **环境变量**：不 source，让脚本自己读 `.env` 进 `os.environ`（值不打印），`WT=$PWD python probe.py`。
 4. **批量 git 操作**：不用循环，`git branch -D a b c d` 一条命令接多个名字；`git worktree remove <path>` 单独一条。
 5. **多段追加**：每段各写一个 scratch 文件，`cat a >> f1; cat b >> f2` 一条简单命令；改 import 用 Edit 工具（Edit 不过沙盒启发式，但要先用 Read 工具读过目标文件——`sed` 读不算）。
+6. **提交**：别用 `git commit -F -` 配 heredoc（必被拒）。提交信息用 Write 工具落到 scratchpad，再 `git commit -q -F /path/msg.txt`；`git commit --amend -F /path/msg.txt` 同理。`git add <file…>`、`git log`、`git show`、`git status` 这类**单条**命令在 worktree 里一律放行——拦的是复合，不是 git 本身。
 
-判据一句：**沙盒拒的是"它读不懂的命令串"，不是"危险的命令"**。把复杂度挪进文件，命令串就只剩一个动词。
+判据一句：**沙盒拒的是"它读不懂的命令串"，不是"危险的命令"**。把复杂度挪进文件（命令本身，或它的长参数），命令串就只剩一个动词。
 
 ## 数据支撑
 
 - 同一会话四次被拒，四次换成脚本文件/单命令后一次过；
 - 另一个会话（0907）在 memory 里记过同族："含 git 字样的内联 python 被拒"、"两个 heredoc + pytest 被拒"。
+- 2026-11-18 易查云 wiki 补页会话复现一次，并测出了边界的两侧：`git add && git commit -F - <<EOF` 被拒（拒绝原话已换成「must target its own worktree. Split it into plain, separate commands」），拆成 add / commit -F 文件 / log 三条单命令后一次过；而同一会话里**单个 heredoc 且不含 git 字样**是放行的——`cat >> wiki/log.md <<'EOF' … EOF && echo … && python3 wiki/tools/lint.py` 通过。所以触发条件是「git + 复合」或「多 heredoc」，不是「有 heredoc」。
 
 ## 适用范围
 

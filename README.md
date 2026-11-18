@@ -38,7 +38,7 @@ claude-code-playbook/
 | [模糊名聚合对手方要剔掉 X 自己](patterns/self-match-exclusion-in-counterparty-aggregation.md) | 模糊匹配把关联公司收进来后，X 自己成了 X 的头号供应商（30.6%）；修在"谁被算进来了"不在"从哪个方向算"：剔同集团行、单列不丢，卡面三条按方向切的候选全否 |
 | [盘点并行 AI 会话的孤悬分支](patterns/auditing-stray-branches-from-parallel-ai-sessions.md) | `git cherry` 判补丁等价、`merge-tree --write-tree` 干跑冲突、`merge-base --is-ancestor` 核祖先——三条只读命令把 5 条领先分支分成"删/已重写合入/真孤悬"，捞出一条做完 3 天没人知道的修复 |
 | [OSMD 手机排版：隐藏钢琴声部 + 两遍排版限行](patterns/osmd-mobile-vocal-only-two-pass-line-cap.md) | 375px 上钢琴大谱表把每行撑成 1 小节；隐藏非主声部是主收益、缩放是次收益；等宽会叠歌词、强制每行 3 会出孤行，两遍排版拆行注入换行永远 ≤3 且不孤行 |
-| [worktree 会话沙盒按 git 字样拦命令](patterns/worktree-session-sandbox-git-keyword-workaround.md) | `rsync --filter=':- .gitignore'`、for 循环、`. .env`、多 heredoc 都会被拒；把复杂度挪进脚本文件，命令串只剩一个动词 |
+| [worktree 会话沙盒按 git 字样拦命令](patterns/worktree-session-sandbox-git-keyword-workaround.md) | `rsync --filter=':- .gitignore'`、for 循环、`. .env`、多 heredoc、`git add && git commit -F -` 都会被拒，而单条 git 命令与单个 heredoc 放行；把复杂度（命令本身或它的长参数）挪进文件，命令串只剩一个动词 |
 | [rsync 部署排除规则读 .gitignore + itemize 干跑](patterns/rsync-deploy-exclude-from-gitignore-with-itemized-dry-run.md) | 手写 exclude 两天漏三项、三次删远端文件；`--filter=':- .gitignore'` 排除即保护，干跑只看 `deleting` 与 `<f.s` 两类行 |
 | [savepoint 内 get-or-create](patterns/savepoint-get-or-create.md) | 先查→没有就在 savepoint 里插并 flush→撞唯一索引回滚 savepoint 再查取已存在行；外层长事务不受影响，并发插同一条从"多一行地雷"变成"拿到同一行" |
 | [进程级浏览器池](patterns/process-level-browser-pool.md) | 长驻进程里 Playwright 只起一个 chromium，业务借 context、信号量限并发、finally 带超时关；断连自动重启，启动清孤儿，健康接口暴露 chrome_procs |
