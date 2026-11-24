@@ -61,6 +61,23 @@ exit $rc
 2. 用 Monitor 或 until 循环等 `DONE` 出现：`until [ -f out/DONE ]; do sleep 30; done; cat out/DONE`；
 3. **别套 `timeout`**：macOS 自带没有这个命令，`timeout 1500 codex …` 直接退 127，那一轮冷审根本没跑（1115 实例）。
 
+### 非代码用途：联网调研、成稿、交叉校验（1125 实测）
+
+一份国别调研报告里，Codex 做了四件事：评审方案、写三国事实表、找某省企业线索、校验 Claude 写的另外三国。用法：
+
+```bash
+cd <scratchpad 里的工作目录>   # 放好 schema.md（格式与纪律）和 plan.md
+codex exec --skip-git-repo-check -m gpt-5.6-sol -s read-only \
+  -c 'tools.web_search=true' -o result.md "先读当前目录的 schema.md……" < /dev/null > run.log 2>&1
+```
+
+- **不在 git 仓库里**就要 `--skip-git-repo-check`；只读沙箱写不了文件，成品靠 `-o` 拿最后一条消息，所以 prompt 里写"只把完整结果作为最终消息输出"。
+- **格式与纪律放成文件**（每条事实带来源链接、可信度、冲突并列、不编造金额），prompt 里让它先读；Claude 子代理读同一份，两边产出才能直接对照、合并。
+- **耗时长**：调研类单任务 25–100 分钟。几路可以并行跑（同时开过 3 个 `codex exec`，互不影响）。
+- **stderr 不能当进度条**：日志里大段 `failed to refresh available models`、MCP 鉴权报错，最长 30 分钟没有新行，但进程还活着、最后正常交稿。判断活没活用 `pgrep -f <输出文件名>`，判断完没完等后台任务通知。
+- **联网开关**：`-c tools.web_search=true` 下它的产出带大量可点的原始链接；没有做不加这个开关的对照，是否必需未验证。
+- 它给的事实和链接同样要核：作为校验者时它的结论被照单全收、链接没人打开过，事后得补核关键几条。双稿对照的效果见 [实验：双模型独立成稿](../experiments/2026-11-25-dual-model-independent-drafts-for-country-briefing.md)。
+
 ## 派活 prompt 怎么写
 
 Codex 拿不到 Claude 的会话上下文，也读不到 Claude 的 hook。prompt 就是它能拿到的全部：
@@ -92,7 +109,7 @@ Codex 拿不到 Claude 的会话上下文，也读不到 Claude 的 hook。promp
 | 5 | 冷审定级偏高；把卡面已裁定的取舍也判成 🔴 | 冷审只出发现，裁决在协调位 | 1027 对比、1115 归档 |
 | 6 | 只读 diff 查不出「改了口径、别处旧句没跟着改」；开放式冷审两轮各十几条红、不收敛 | 给旧口径词表全树 grep；第三轮起改成定向复核（配方 ④）。一次九轮才零红，先自己 grep 清一遍再派能省掉大半轮次 | 1115、1118 归档 |
 | 7 | 任务没做成（提交被拒、写文件被拒）时退出码仍是 0，`turn.completed` 照常出现 | 完成信号只当「跑完了」用，做没做成看实物 | 1124 实测 |
-| 8 | `~/.local/bin/codex`（0.144，独立安装的旧版）用 ChatGPT 账号跑报错退 1 | 用 ChatGPT App 自带的那份 | 1027 观察，1124 复核仍退 1 |
+| 8 | `~/.local/bin/codex`（0.144，独立安装的旧版）用 ChatGPT 账号跑报错退 1，报错原文是 `The 'gpt-6.1-sol' model is not supported when using Codex with a ChatGPT account` | 根因是 `config.toml` 里的默认模型在旧版 + ChatGPT 账号下不可用，不是旧版整体不能用。1125 实测：`gpt-6.2-sol`、`gpt-6-sol` 同样报错，**`-m gpt-5.6-sol` 正常跑完**。先用 `codex exec -m <候选> "只回复 OK"` 逐个试，或直接用 ChatGPT App 自带的那份 | 1027 观察，1124 复核仍退 1，1125 查明原因 |
 | 9 | 仓库的 `.codex/hooks.json` 未提交时，worktree 里的 PreToolUse hook 一道都不响；hook 脚本依赖 `CLAUDE_PROJECT_DIR` | 外部 agent 的产出只能靠 git pre-commit、CI 必需检查和 Claude 冷核兜底 | 1027 观察，**1124 未复核** |
 | 10 | Codex 在跑时机器忙，带墙钟预算的测试会超时，main 基线同样红 | 判红前先跑 main 基线对照 | 1118 归档 |
 | 11 | stderr 里有大量无关报错（某个 skill 缺 frontmatter、某个 MCP 要 OAuth），不影响结果 | 判成败看 `DONE` 和 events，不看 err.log 有没有 ERROR | 1124 实测 |

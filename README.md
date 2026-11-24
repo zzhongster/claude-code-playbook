@@ -146,6 +146,7 @@ claude-code-playbook/
 | [两发法：第三方集成验证](experiments/2026-09-03-two-shot-probe-third-party-integration.md) | 只打一发会把「被前置闸挡住」误读成「格式不对」——三发受控对照，每次只改一个变量 |
 | [写技能前先跑无技能基线](experiments/2026-09-10-skill-tdd-baseline-vs-with-skill.md) | 「记录一条需求」的技能：基线子会话不核前提、转而去读实现（63 次调用）；有技能后 5 条断言逐条找一手来源、不读实现——token 与用时**没降**，预算从「读实现」搬到「核前提」，该看的指标是转述有没有被核过 |
 | [CI 按读依赖图选测（剧本）](experiments/2026-10-22-ci-read-map-playbook-selection.md) | 9800 个测试的读取追踪 × 4 块区域清空重跑：剧本 630 个读取方、清空后 587 个失败全在其中、隐藏依赖 0；`data/`、`platforms/`、渲染规范分别撞上全局导入期读取、模块导入期读取、会话夹具只记首个使用者，未启用。另否定「报告分片被打包测试拖慢」：三段时间里跑测试占 88% |
+| [双模型独立成稿做国别调研](experiments/2026-11-25-dual-model-independent-drafts-for-country-briefing.md) | 六国出访资料分两组：单稿 + 他模型校验抓到 12 条、补漏 0；两模型独立写再对照抓到 14 条、补漏 3，其中三国签证全错。校验者只纠错不补漏；时效性强的章节值得双稿 |
 
 ### Templates — 可复用模板
 
