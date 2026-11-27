@@ -138,6 +138,7 @@ claude-code-playbook/
 | [用源码的写法去校验预渲染产物](anti-patterns/prerender-output-verification-false-negatives.md) | 产物是**序列化出来的 DOM**，照源码写法去匹配会连撞四个假阴性：① 正则数到的 `ant-collapse-item` 其实在注入的 `<style>` 里（统计 DOM 前一律先剥 `<script>/<style>`）；② 按书写顺序写的属性正则全落空 —— puppeteer 按字母序重排属性、Helmet 还多带 `data-rh`，一度误判「description 0 条、canonical 缺失」（用单属性锚点或直接解析 DOM）；③ 去标签时把标签换成空格，`<strong>` 分段的句子被切断 —— **两个问题两套归一化**：问字数→换空格，问「这句在不在」→ 去掉全部空白再比；④ **`serve -s` 的 `-s` 把所有子路径重写到 `/index.html`，重写发生在文件查找之前**，实测（serve 14.2.6）`/faq` 与 `/faq/` 都返回首页外壳，验的根本不是目标页 —— 用不带 `-s` 的 serve 或 `python3 -m http.server`（后者 301 到 `/faq/`，curl 要带 `-L`） |
 | [共用表格只管骨架，单元格散在各页](anti-patterns/shared-grid-skeleton-only-cells-per-page.md) | DataGrid 只负责行、键盘、列宽，单元格长相（标题 + 副标、分布条、时间）和表底提示条由各页自己写、自己挂 ⇒ 「对齐原型」退化成逐页改，横切包改了组件、调用方没换，负责人看到的还是旧表。正确顺序：**先补全基础组件**（全站一致的东西内建、按能力自动生成；一套标准单元格；声明式列定义），**再逐页只换组件**，并用机器检查拦住页面里手写的单元格样式；验收以页面截图为准，不以「组件已存在」为准 |
 | [上下文压缩丢了「往哪派活」的约定](anti-patterns/compaction-drops-dispatch-convention.md) | 协调会话原本把写代码的活派到两台执行机，压缩后摘要只留「在做什么」不留「往哪派」，整天退回开本机会话，执行机闲置、IP 变了、运行时丢了都没人发现。派活约定当场落持久记忆；连接写 `.local` 机器名不写 IP；派前体检；用户问「怎么不用 X 了」先搜自己的对话记录 |
+| [角色夹具坏了，三种角色的用例照样全绿](anti-patterns/role-fixture-silently-collapses-to-no-role.md) | 夹具 id 少一位，服务端解析身份抛错后兜底成「无角色」，三种角色渲染成同一个页面；每个角色只断言共有内容，所以整组一直全绿，直到一条断言第一次依赖角色才红。按角色分支的用例至少要一条「不同角色看到的不一样」的断言；用例开头先断言角色本身；id 用产品的生成函数造 |
 
 ### Experiments — 对比实验
 
